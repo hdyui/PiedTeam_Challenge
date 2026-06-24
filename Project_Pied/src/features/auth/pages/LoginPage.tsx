@@ -70,6 +70,11 @@ export const LoginPage = () => {
                     {...register("email")}
                     className={errors.email ? "border-destructive" : ""}
                   />
+                  {errors.email && (
+                    <p className="text-sm text-destructive">
+                      {errors.email.message}
+                    </p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label className="flex items-center gap-2">
@@ -84,6 +89,11 @@ export const LoginPage = () => {
                     {...register("password")}
                     className={errors.password ? "border-destructive" : ""}
                   />
+                  {errors.password && (
+                    <p className="text-sm text-destructive">
+                      {errors.password.message}
+                    </p>
+                  )}
                 </div>
                 <Button
                   type="submit"
