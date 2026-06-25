@@ -1,7 +1,7 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuthStore } from "@/features/auth/store";
 import { Button } from "@/shared/components/ui/button";
-import { useLogoutMutation } from "../../features/auth/hooks/useAuth";
+import { useLogoutMutation } from "../../hooks/useAuth";
 
 const MainLayout = () => {
   // const navigate = useNavigate();
@@ -26,7 +26,7 @@ const MainLayout = () => {
       <header className="bg-primary text-white px-4 py-4 sticky top-0 z-50 border-b border-white/10">
         <div className="max-w-4xl mx-auto flex justify-between items-center">
           <NavLink to="/" className="text-xl font-bold">
-            ShopApp
+            Management
           </NavLink>
 
           <div className="flex gap-4">
@@ -93,7 +93,7 @@ const MainLayout = () => {
       </main>
       {/* ===== FOOTER - Nền nhà (Cố định) ===== */}
       <footer className="mt-auto bg-primary p-6 text-center text-sm text-gray-600 border-t border-white/10">
-        © 2026 ShopApp - Piedteam ReactJS Course
+        © 2026 Business Management - Piedteam React Course
       </footer>
     </div>
   );
