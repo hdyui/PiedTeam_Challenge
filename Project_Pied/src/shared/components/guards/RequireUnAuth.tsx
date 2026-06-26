@@ -6,17 +6,11 @@ const RequireUnAuth = () => {
   const role = useAuthStore((state) => state.role);
   // const token = localStorage.getItem("accessToken");
 
-  if (isAuthed && role == "user") {
+  if (isAuthed) {
     // 1. Có token -> Đá về /home
-<<<<<<< HEAD
-    return <Navigate to="/" replace />;
-=======
-    return <Navigate to="/settings" replace />;
->>>>>>> main
+    //return <Navigate to="/profile" replace />;
+    return <Outlet />;
   }
-
-  // 3. Không có token -> Cho đi tiếp vào các tầng bên trong
-  return <Outlet />;
 };
 
 export default RequireUnAuth;

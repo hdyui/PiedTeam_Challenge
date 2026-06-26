@@ -66,7 +66,7 @@ export const useLoginMutation = () => {
       //queryClient.setQueryData(["me"], data);
       toast.success("Đăng nhập thành công");
       if (userRole === "user") {
-        navigate("/settings", { replace: true });
+        navigate("/profile", { replace: true });
       } else {
         navigate(from, { replace: true });
       }
