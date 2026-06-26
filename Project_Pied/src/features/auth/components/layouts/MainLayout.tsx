@@ -60,7 +60,11 @@ const MainLayout = () => {
                     )}
                   </NavLink>
 
-                  <Button variant="ghost" onClick={handleLogout}>
+                  <Button
+                    variant="ghost"
+                    onClick={handleLogout}
+                    disabled={useHandleLogout.isPending}
+                  >
                     Logout
                   </Button>
                 </>

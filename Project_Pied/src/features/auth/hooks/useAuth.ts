@@ -6,6 +6,8 @@ import { useAuthStore } from "../store";
 import { queryClient } from "@/lib/queryClient";
 import { jwtDecode } from "jwt-decode";
 import type { AuthResponse, JwtPayload, LoginRequest } from "../type";
+import axios from "axios";
+import { env } from "@/lib/env";
 
 export const useRegisterMutation = () => {
   const navigate = useNavigate();
@@ -42,19 +44,29 @@ export const useLoginMutation = () => {
     (location.state as { from?: { pathname: string } })?.from?.pathname ?? "/";
   const navigate = useNavigate();
   const setAuth = useAuthStore((state) => state.setAuth);
+
   return useMutation<AuthResponse, Error, LoginRequest>({
     mutationFn: (data) => authApi.login(data),
-    onSuccess: (res) => {
-      const decoded = jwtDecode<JwtPayload>(res.accessToken);
+    onSuccess: async (res) => {
+      console.log(res);
+
+      const data = await axios.get(`${env.API_URL}user/me`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${res.accessToken}`,
+        },
+      });
+      const userRole = data.data.data.role;
+      console.log(userRole);
+
       setAuth({
         accessToken: res.accessToken,
-        role: decoded.role,
+        role: userRole,
       });
-
+      //queryClient.setQueryData(["me"], data);
       toast.success("Đăng nhập thành công");
-
-      if (decoded.role === "Admin") {
-        navigate("/admin/rituals", { replace: true });
+      if (userRole === "user") {
+        navigate("/settings", { replace: true });
       } else {
         navigate(from, { replace: true });
       }

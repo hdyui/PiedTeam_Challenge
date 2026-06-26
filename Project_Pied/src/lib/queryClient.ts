@@ -6,7 +6,7 @@ export const queryClient = new QueryClient({
       // 🎛️ Config mặc định cho TẤT CẢ queries
 
       // 1. Refetch on Window Focus
-      refetchOnWindowFocus: "always",
+      refetchOnWindowFocus: false,
       // điều kiện fetch
       // -> 1. có component dùng data đó
       // -> 2. dữ liệu cũ ( ở tab đó thì vẫn re-fetch )

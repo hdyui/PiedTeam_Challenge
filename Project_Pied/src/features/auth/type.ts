@@ -22,6 +22,7 @@ export interface JwtPayload {
 // Bản đồ map với bảng User (Thông tin cá nhân)
 export interface UserProfile {
   id: string; // UserId
+  email: string;
   departmentId?: string | null;
   firstName: string;
   lastName: string;
@@ -29,11 +30,9 @@ export interface UserProfile {
   position?: string | null;
   avatarUrl?: string | null;
 }
-// Cấu trúc trả về khi gọi API lấy thông tin người dùng đang đăng nhập (GetMe)
-export interface GetMeResponse {
-  accountId: string;
+
+export interface UserDto {
+  fullName: string;
   email: string;
-  role: UserRole;
-  status: AccountStatus;
-  profile: UserProfile;
+  password: string;
 }
