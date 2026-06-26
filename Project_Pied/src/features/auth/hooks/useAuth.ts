@@ -48,6 +48,11 @@ export const useLoginMutation = () => {
   return useMutation<AuthResponse, Error, LoginRequest>({
     mutationFn: (data) => authApi.login(data),
     onSuccess: async (res) => {
+<<<<<<< HEAD
+=======
+      console.log(res);
+
+>>>>>>> main
       const data = await axios.get(`${env.API_URL}user/me`, {
         headers: {
           "Content-Type": "application/json",

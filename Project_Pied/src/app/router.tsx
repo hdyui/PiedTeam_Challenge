@@ -24,15 +24,6 @@ export const router = createBrowserRouter([
         element: <HomePage />,
       },
       {
-        element: <RequireAuth />, // Guard bọc ở đây
-        children: [
-          { path: "profile", element: <ProfilePage /> },
-          { path: "settings", element: <SettingPage /> },
-          { path: "register", element: <RegisterPage /> },
-        ],
-      },
-
-      {
         element: <RequireUnAuth />, // Guard bọc ở đây
         children: [{ path: "login", element: <LoginPage /> }],
       },
@@ -40,7 +31,7 @@ export const router = createBrowserRouter([
   },
 
   {
-    path: "admin", // Đường dẫn gốc
+    path: "/admin", // Đường dẫn gốc
     element: <AdminMainLayout />, // Layout bọc ngoài (Cái nhà)
     children: [
       // Các trang con (Nội thất)

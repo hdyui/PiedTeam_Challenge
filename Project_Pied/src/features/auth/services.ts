@@ -1,4 +1,5 @@
 import apiClient from "@/lib/axios";
+<<<<<<< HEAD
 import type { AuthResponse, GetMeResponse, UserProfile } from "./type";
 import type { UserRole } from "@/shared/types";
 
@@ -14,6 +15,10 @@ interface UserDto {
   email: string;
   password: string;
 }
+=======
+import type { AuthResponse, UserDto, UserProfile } from "./type";
+import type { UserRole } from "@/shared/types";
+>>>>>>> main
 
 // authApi chứa các hàm gọi API lquan đến authentication như login, register, getMe,...
 // mỗi hàm sẽ gọi apiClient để thực hiện request, sau đó normalize dữ liệu
@@ -47,6 +52,7 @@ export const authApi = {
     await apiClient.post("/auth/logout");
   },
 
+<<<<<<< HEAD
   updateProfile: async (
     userId: string,
     data: Partial<GetMeResponse["profile"]>,
@@ -62,5 +68,9 @@ export const authApi = {
       name: data.name,
       role: data.role,
     };
+=======
+  async getMe(): Promise<UserProfile> {
+    return apiClient.get("/user/me") as unknown as Promise<UserProfile>;
+>>>>>>> main
   },
 };
