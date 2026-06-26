@@ -7,7 +7,7 @@ const RequireUnAuth = () => {
 
   if (isAuthed) {
     // 1. Có token -> Đá về /home
-    return <Navigate to="/profile" replace />;
+    return <Navigate to="/" replace />;
   }
 
   // 3. Không có token -> Cho đi tiếp vào các tầng bên trong

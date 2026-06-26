@@ -1,10 +1,12 @@
 import apiClient from "@/lib/axios";
 import type { AuthResponse, GetMeResponse, UserProfile } from "./type";
+import type { UserRole } from "@/shared/types";
 
 interface User {
   _id: string;
   email: string;
   name: string;
+  role: UserRole;
 }
 
 interface UserDto {
@@ -58,6 +60,7 @@ export const authApi = {
       _id: data._id,
       email: data.email,
       name: data.name,
+      role: data.role,
     };
   },
 };
