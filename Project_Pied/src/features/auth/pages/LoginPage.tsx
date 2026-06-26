@@ -50,7 +50,7 @@ export const LoginPage = () => {
               Đăng nhập
             </CardTitle>
             <CardDescription className="flex justify-center text-1xl font-extrabold">
-              Nhập thông tin để tiếp tục sử dụng ShopApp
+              Nhập thông tin để tiếp tục
             </CardDescription>
           </CardHeader>
 

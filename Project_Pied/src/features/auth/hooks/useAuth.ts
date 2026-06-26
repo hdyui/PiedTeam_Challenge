@@ -1,67 +1,71 @@
-import { authApi } from "@/features/auth/services";
-import { useAuthStore } from "@/features/auth/store";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-
-export const useLoginMutation = () => {
-  const navigate = useNavigate();
-  const setTokens = useAuthStore((state) => state.setTokens);
-
-  return useMutation({
-    mutationFn: (data: { email: string; password: string }) =>
-      authApi.login(data),
-
-    onSuccess: (data) => {
-      setTokens(data.accessToken, data.refreshToken);
-
-      toast.success("Chào mừng bạn quay trở lại!");
-      //const from = (location.state as any)?.form?.pathname || "/profile";
-      navigate("/profile", { replace: true });
-    },
-
-    onError: (error: any) => {
-      // Lấy message lỗi từ API trả về hoặc dùng mặc định
-      const message = error.response?.data?.message || "Đăng nhập thất bại";
-      toast.error(message);
-    },
-  });
-};
+import { authApi } from "../services";
+import { useAuthStore } from "../store";
+import { queryClient } from "@/lib/queryClient";
+import { jwtDecode } from "jwt-decode";
+import type { AuthResponse, JwtPayload, LoginRequest } from "../type";
 
 export const useRegisterMutation = () => {
   const navigate = useNavigate();
+  // Dùng để tạo, cập nhật hoặc xóa dữ liệu (POST, PUT, DELETE) lên server
   return useMutation({
     mutationFn: (userData: {
       fullName: string;
       email: string;
-      password: string;
-      comfirmPassword: string;
+      password: string; //truyền vào dư ko cần định nghĩa cũng k lỗi
     }) => authApi.register(userData),
 
     onSuccess: () => {
-      toast.success("Đăng ký thành công", {
-        description: "vui lòng đăng nhập để tiếp tục.",
-      });
-
-      navigate("/login");
+      toast.success("Đăng ký thành công");
+      const from = (location as any)?.from?.pathname || "/profile";
+      navigate(from, { replace: true });
     },
 
     onError: (error: any) => {
       toast.error(
         error.response?.data?.message || "Đăng ký thất bại, vui lòng thử lại",
       );
+      console.log(error.response?.data?.message);
     },
 
     onSettled: () => {
-      // có thể dùng để reset form hoặc thao tác cleanup
+      //có thể dùng để reset form hoặc các thao tác cleanup khác
+    },
+  });
+};
+
+export const useLoginMutation = () => {
+  const location = useLocation();
+  const from =
+    (location.state as { from?: { pathname: string } })?.from?.pathname ?? "/";
+  const navigate = useNavigate();
+  const setAuth = useAuthStore((state) => state.setAuth);
+  return useMutation<AuthResponse, Error, LoginRequest>({
+    mutationFn: (data) => authApi.login(data),
+    onSuccess: (res) => {
+      const decoded = jwtDecode<JwtPayload>(res.accessToken);
+      setAuth({
+        accessToken: res.accessToken,
+        role: decoded.role,
+      });
+
+      toast.success("Đăng nhập thành công");
+
+      if (decoded.role === "Admin") {
+        navigate("/admin/rituals", { replace: true });
+      } else {
+        navigate(from, { replace: true });
+      }
     },
   });
 };
 
 export const useLogoutMutation = () => {
-  const clearTokens = useAuthStore((state) => state.clearTokens);
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  const clearTokens = useAuthStore((state) => state.clearAuth);
+
   return useMutation({
     mutationFn: () => {
       return authApi.logout();
@@ -71,15 +75,56 @@ export const useLogoutMutation = () => {
       clearTokens();
       queryClient.removeQueries();
 
-      queryClient.invalidateQueries();
+      // xóa 1 key thôi, vd khi update thì xóa key của 1 cái cũ thôi r add
+      // queryClient.invalidateQueries({ queryKey: ["rituals"] });
+
       toast.success("Đăng xuất thành công");
-      navigate("/");
+
+      navigate("/login");
     },
 
-    onError: () => {
+    onError: (error: any) => {
+      toast.error(
+        error.response?.data?.message ||
+          "Đăng xuất gặp sự cố, nhưng vẫn đăng xuất",
+      );
       clearTokens();
-      //queryClien.removeQueries();
-      toast.error("Đăng xuất thành công");
+      queryClient.removeQueries();
+      console.log(error.response?.data?.message);
     },
+
+    onSettled: () => {
+      //có thể dùng để reset form hoặc các thao tác cleanup khác
+    },
+  });
+};
+
+export const useUser = () => {
+  // Dùng để đọc/lấy dữ liệu (GET) từ server.
+  return useQuery({
+    //-----------------------------------
+    //     1. QUERY KEY: BẮT BUỘC
+    //-----------------------------------
+    queryKey: ["me"], // id của cache
+    // me: unique - id của cache để nhận dạng cache nào
+    // data cùng key sẽ ghi đè lên nhau
+    // là 1 cái mảng để: linh hoạt trong việc thêm key
+    /**
+     *  Query Key Concept:
+     * - Key: = ID của Cache
+     * - Cùng key = chung cache
+     * - Khác key = khác cache
+     */
+
+    //-----------------------------------
+    //     2. QUERY FUNCTION: BẮT BUỘC
+    //-----------------------------------
+    queryFn: authApi.getMe,
+
+    /**
+     * enabled: !!accessToken;
+     *
+     *
+     */
   });
 };
