@@ -1,10 +1,11 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuthStore } from "@/features/auth/store";
 import { Button } from "@/shared/components/ui/button";
-import { useLogoutMutation } from "../../hooks/useAuth";
+import { useLogoutMutation } from "@/features/auth/hooks/useAuth";
 
 const MainLayout = () => {
   // const navigate = useNavigate();
+  const role = useAuthStore((state) => state.role);
   const token = useAuthStore((state) => !!state.accessToken);
   //const token = localStorage.getItem("accessToken");
   // const [render, setRender] = useState(false);
@@ -26,7 +27,7 @@ const MainLayout = () => {
       <header className="bg-primary text-white px-4 py-4 sticky top-0 z-50 border-b border-white/10">
         <div className="max-w-4xl mx-auto flex justify-between items-center">
           <NavLink to="/" className="text-xl font-bold">
-            Management
+            Company CMS
           </NavLink>
 
           <div className="flex gap-4">
@@ -47,18 +48,37 @@ const MainLayout = () => {
 
               {token && (
                 <>
-                  <NavLink to="/profile">
-                    {({ isActive }) => (
-                      <Button
-                        variant="ghost"
-                        className={
-                          isActive ? "bg-white/10 underline" : "text-white/80"
-                        }
-                      >
-                        Profile
-                      </Button>
-                    )}
-                  </NavLink>
+                  {/* Nút bấm dành riêng cho Employee */}
+                  {role === "Employee" && (
+                    <NavLink to="/employee">
+                      {({ isActive }) => (
+                        <Button
+                          variant="ghost"
+                          className={
+                            isActive ? "bg-white/10 underline" : "text-white/80"
+                          }
+                        >
+                          Dashboard
+                        </Button>
+                      )}
+                    </NavLink>
+                  )}
+
+                  {/* Nút bấm dành riêng cho Admin (Phòng hờ Admin đứng ở trang Home muốn quay lại Admin) */}
+                  {role === "Admin" && (
+                    <NavLink to="/admin">
+                      {({ isActive }) => (
+                        <Button
+                          variant="ghost"
+                          className={
+                            isActive ? "bg-white/10 underline" : "text-white/80"
+                          }
+                        >
+                          Admin Panel
+                        </Button>
+                      )}
+                    </NavLink>
+                  )}
 
                   <Button
                     variant="ghost"
