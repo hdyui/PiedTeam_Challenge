@@ -1,33 +1,36 @@
 import { createBrowserRouter } from "react-router-dom";
 import RequireAuth from "@/shared/components/guards/RequireAuth";
 import RequireUnAuth from "@/shared/components/guards/RequireUnAuth";
-import MainLayout from "@/shared/layouts/MainLayout"; // Layout dùng cho Public & Employee
+import MainLayout from "@/shared/layouts/MainLayout";
 
-// public & auth
 import { HomePage } from "@/features/auth/pages/HomePage";
 import { LoginPage } from "@/features/auth/pages/LoginPage";
 import { RegisterPage } from "@/features/auth/pages/RegisterPage";
 
-// admin & employee
 import EmployeeListPage from "@/features/employees/pages/EmployeeListPage";
 import EmployeeCreatePage from "@/features/employees/pages/EmployeeCreatePage";
 import EmployeeDetailPage from "@/features/employees/pages/EmployeeDetailPage";
 import EmployeeEditPage from "@/features/employees/pages/EmployeeEditPage";
 import AdminMainLayout from "@/shared/layouts/AdminMainLayout";
 
+// ─── News ────────────────────────────────────────────────────────────────────
+import {
+  NewsListPage,
+  NewsCreatePage,
+  NewsEditPage,
+  NewsDetailPage,
+} from "@/features/news";
+
 export const router = createBrowserRouter([
   // --- PUBLIC & USER ROUTES ---
   {
     path: "/",
-    element: <MainLayout />, // Layout bọc ngoài cho User
+    element: <MainLayout />,
     children: [
+      { index: true, element: <HomePage /> },
+      { path: "news", element: <NewsDetailPage /> },
       {
-        index: true,
-        element: <HomePage />,
-      },
-      { path: "news", element: <div>Trang hiển thị news (Public)</div> }, // Path: /news
-      {
-        element: <RequireUnAuth />, // Guard bọc ở đây chặn quay về login or regis nếu đã đăng nhập
+        element: <RequireUnAuth />,
         children: [
           { path: "login", element: <LoginPage /> },
           { path: "register", element: <RegisterPage /> },
@@ -38,7 +41,7 @@ export const router = createBrowserRouter([
 
   // --- ADMIN ROUTES ---
   {
-    path: "/admin", // Đường dẫn gốc
+    path: "/admin",
     element: <RequireAuth allowedRoles={["Admin"]} />,
     children: [
       {
@@ -46,16 +49,19 @@ export const router = createBrowserRouter([
         children: [
           { index: true, element: <div>Trang dashboard của Admin</div> },
 
+          // Employees
           { path: "employees", element: <EmployeeListPage /> },
           { path: "employees/create", element: <EmployeeCreatePage /> },
           { path: "employees/update/:id", element: <EmployeeEditPage /> },
           { path: "employees/:id", element: <EmployeeDetailPage /> },
 
-          { path: "news", element: <div>Admin News List</div> },
-          { path: "news/create", element: <div>Admin Create News</div> },
-          { path: "news/update/:id", element: <div>Admin Update News</div> },
-          { path: "news/:id", element: <div>Admin Detail News</div> },
+          // News
+          { path: "news", element: <NewsListPage /> },
+          { path: "news/create", element: <NewsCreatePage /> },
+          { path: "news/update/:id", element: <NewsEditPage /> },
+          { path: "news/:id", element: <NewsDetailPage /> },
 
+          // Recruitments (chưa implement)
           { path: "recruitments", element: <div>Admin Recruitments List</div> },
           {
             path: "recruitments/create",
@@ -73,22 +79,24 @@ export const router = createBrowserRouter([
       },
     ],
   },
+
+  // --- EMPLOYEE ROUTES ---
   {
     path: "/employee",
     element: <RequireAuth allowedRoles={["Employee"]} />,
     children: [
       {
-        element: <MainLayout />, // Tạm dùng MainLayout, nếu có EmployeeLayout riêng thì thay vào
+        element: <MainLayout />,
         children: [
-          { index: true, element: <div>Trang dashboard của nhân viên</div> }, // Path: /employee
+          { index: true, element: <div>Trang dashboard của nhân viên</div> },
           {
             path: "profile",
             element: <div>Trang hiển thị profile nhân viên</div>,
-          }, // path: /employee/profile
+          },
           {
             path: "profile/update",
             element: <div>Trang cập nhật profile nhân viên</div>,
-          }, // path: /employee/profile/update
+          },
         ],
       },
     ],

@@ -1,9 +1,18 @@
 // src/features/news/components/NewsForm.tsx
-import { useState } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { NewsFormSchema, type NewsFormSchemaType } from "../schema";
 import { RichTextEditor } from "@/shared/components/ui/RichTextEditor";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shared/components/ui/select";
 import {
   Card,
   CardContent,
@@ -11,26 +20,52 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
+import type { NewsStatus } from "../type";
+import { Link } from "react-router-dom";
 
 interface NewsFormProps {
-  initialData?: { title: string; coverImage: string; content: string };
-  onSubmit: (data: any) => void;
+  initialData?: {
+    title: string;
+    coverImg: string;
+    contentHtml: string;
+    contentJson?: object;
+    status: NewsStatus;
+  };
+  onSubmit: (data: NewsFormSchemaType) => void;
+  isLoading?: boolean;
   isEdit?: boolean;
 }
+
+const STATUS_OPTIONS: { value: NewsStatus; label: string }[] = [
+  { value: "draft", label: "Nháp" },
+  { value: "published", label: "Xuất bản" },
+  { value: "archived", label: "Lưu trữ" },
+];
 
 export const NewsForm = ({
   initialData,
   onSubmit,
+  isLoading = false,
   isEdit = false,
 }: NewsFormProps) => {
-  const [title, setTitle] = useState(initialData?.title || "");
-  const [coverImage, setCoverImage] = useState(initialData?.coverImage || "");
-  const [content, setContent] = useState(initialData?.content || "");
+  const {
+    register,
+    handleSubmit,
+    control,
+    watch,
+    formState: { errors },
+  } = useForm<NewsFormSchemaType>({
+    resolver: zodResolver(NewsFormSchema),
+    defaultValues: {
+      title: initialData?.title ?? "",
+      coverImg: initialData?.coverImg ?? "",
+      contentHtml: initialData?.contentHtml ?? "",
+      contentJson: initialData?.contentJson,
+      status: initialData?.status ?? "draft",
+    },
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit({ title, coverImage, content });
-  };
+  const coverImgValue = watch("coverImg");
 
   return (
     <Card className="max-w-5xl mx-auto shadow-sm border-gray-200">
@@ -40,45 +75,76 @@ export const NewsForm = ({
         </CardTitle>
       </CardHeader>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent className="space-y-6">
-          {/* Group: Tiêu đề */}
+          {/* Tiêu đề */}
           <div className="space-y-2">
             <Label
               htmlFor="title"
               className="text-sm font-semibold text-gray-700"
             >
-              Tiêu đề bài viết
+              Tiêu đề bài viết <span className="text-red-500">*</span>
             </Label>
             <Input
               id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              {...register("title")}
               placeholder="Nhập tiêu đề ấn tượng..."
               className="focus-visible:ring-blue-500"
-              required
             />
+            {errors.title && (
+              <p className="text-xs text-red-500">{errors.title.message}</p>
+            )}
           </div>
 
-          {/* Group: Ảnh bìa */}
+          {/* Trạng thái */}
+          <div className="space-y-2">
+            <Label className="text-sm font-semibold text-gray-700">
+              Trạng thái <span className="text-red-500">*</span>
+            </Label>
+            <Controller
+              name="status"
+              control={control}
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger className="w-48">
+                    <SelectValue placeholder="Chọn trạng thái" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {STATUS_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.status && (
+              <p className="text-xs text-red-500">{errors.status.message}</p>
+            )}
+          </div>
+
+          {/* Ảnh bìa */}
           <div className="space-y-2">
             <Label
-              htmlFor="coverImage"
+              htmlFor="coverImg"
               className="text-sm font-semibold text-gray-700"
             >
-              URL Ảnh bìa (Cover Image)
+              URL Ảnh bìa
             </Label>
             <Input
-              id="coverImage"
-              value={coverImage}
-              onChange={(e) => setCoverImage(e.target.value)}
+              id="coverImg"
+              {...register("coverImg")}
               placeholder="https://example.com/image.png"
               className="focus-visible:ring-blue-500"
             />
-            {coverImage && (
+            {errors.coverImg && (
+              <p className="text-xs text-red-500">{errors.coverImg.message}</p>
+            )}
+            {coverImgValue && (
               <div className="mt-4 overflow-hidden rounded-lg border border-gray-100 bg-gray-50">
                 <img
-                  src={coverImage}
+                  src={coverImgValue}
                   alt="Cover preview"
                   className="h-48 w-full object-cover"
                 />
@@ -86,26 +152,47 @@ export const NewsForm = ({
             )}
           </div>
 
-          {/* Group: Nội dung */}
+          {/* Nội dung Rich Text */}
           <div className="space-y-2">
             <Label className="text-sm font-semibold text-gray-700">
-              Nội dung bài viết
+              Nội dung bài viết <span className="text-red-500">*</span>
             </Label>
-            <div className="border rounded-md overflow-hidden">
-              <RichTextEditor value={content} onChange={setContent} />
-            </div>
+            <Controller
+              name="contentHtml"
+              control={control}
+              render={({ field }) => (
+                <div className="border rounded-md overflow-hidden">
+                  <RichTextEditor
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
+                </div>
+              )}
+            />
+            {errors.contentHtml && (
+              <p className="text-xs text-red-500">
+                {errors.contentHtml.message}
+              </p>
+            )}
           </div>
         </CardContent>
 
         <CardFooter className="flex justify-end gap-3 bg-gray-50/50 px-6 py-4 border-t">
-          <Button variant="outline" type="button" className="w-24">
-            Hủy
-          </Button>
+          <Link to="/admin/news">
+            <Button variant="outline" type="button" className="w-24">
+              Hủy
+            </Button>
+          </Link>
           <Button
             type="submit"
+            disabled={isLoading}
             className="w-40 bg-blue-600 hover:bg-blue-700 text-white"
           >
-            {isEdit ? "Lưu thay đổi" : "Xuất bản ngay"}
+            {isLoading
+              ? "Đang lưu..."
+              : isEdit
+                ? "Lưu thay đổi"
+                : "Xuất bản ngay"}
           </Button>
         </CardFooter>
       </form>

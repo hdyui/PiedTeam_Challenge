@@ -1,12 +1,13 @@
 import type { AccountStatus, UserRole } from "@/shared/types";
 
 export interface AuthResponse {
-  accessToken: string;
-  // refreshToken: string;
-  description?: {
-    hasActiveSubscription: boolean;
-    subscriptionStatus?: string;
+  value: {
+    accessToken: string;
   };
+  isSuccess: boolean;
+  isFailed: boolean;
+  error: unknown | null;
+  traceId?: string;
 }
 
 export interface LoginRequest {
@@ -17,7 +18,7 @@ export interface LoginRequest {
 export interface JwtPayload {
   sub: string;
   email: string;
-  role: UserRole;
+  Role: UserRole;
 }
 // Bản đồ map với bảng User (Thông tin cá nhân)
 export interface UserProfile {

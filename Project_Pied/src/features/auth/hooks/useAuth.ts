@@ -49,18 +49,17 @@ export const useLoginMutation = () => {
   return useMutation<AuthResponse, Error, LoginRequest>({
     mutationFn: (data) => authApi.login(data),
     onSuccess: (res) => {
-      const decoded = jwtDecode<JwtPayload>(res.accessToken);
+      const decoded = jwtDecode<JwtPayload>(res.value.accessToken);
       console.log(decoded);
       setAuth({
-        accessToken: res.accessToken,
-        role: decoded.role,
+        accessToken: res.value.accessToken,
+        role: decoded.Role,
       });
       toast.success("Đăng nhập thành công");
-      console.log(decoded.role);
-      if (decoded.role === "Admin") {
+      console.log(decoded.Role);
+      if (decoded.Role === "Admin") {
         navigate("/admin", { replace: true });
-        console.log(decoded.role);
-        if (decoded.role === "Admin") {
+        if (decoded.Role === "Admin") {
           navigate("/admin", { replace: true });
         } else {
           navigate("/employee");
@@ -86,7 +85,6 @@ export const useLogoutMutation = () => {
       // queryClient.invalidateQueries({ queryKey: ["rituals"] });
 
       toast.success("Đăng xuất thành công");
-
       navigate("/login");
     },
 
