@@ -9,10 +9,8 @@ const RequireUnAuth = () => {
     if (role === "Admin") return <Navigate to="/admin" replace />;
     if (role === "Employee") return <Navigate to="/employee" replace />;
     // 1. Có token -> Đá về /home
-    return <Navigate to="/settings" replace />;
+    //return <Navigate to="/profile" replace />;
   }
-
-  // 3. Không có token -> Cho đi tiếp vào các tầng bên trong
   return <Outlet />;
 };
 

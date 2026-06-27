@@ -2,8 +2,8 @@ import { createBrowserRouter } from "react-router-dom";
 import RequireUnAuth from "@/shared/components/guards/RequireUnAuth";
 import RequireAuth from "@/shared/components/guards/RequireAuth";
 
-import MainLayout from "@/shared/layouts/MainLayout"; // Layout dùng cho Public & Employee
-import AdminMainLayout from "@/features/employees/components/layout/AdminMainLayout"; // Layout riêng cho Admin
+import MainLayout from "@/shared/layouts/MainLayout"; // Layout chung cho Public & Employee
+import AdminMainLayout from "@/shared/layouts/AdminMainLayout";
 
 // public & auth
 import { HomePage } from "@/features/auth/pages/HomePage";
@@ -17,12 +17,13 @@ import EmployeeDetailPage from "@/features/employees/pages/EmployeeDetailPage";
 import EmployeeEditPage from "@/features/employees/pages/EmployeeEditPage";
 
 export const router = createBrowserRouter([
+  // --- PUBLIC & USER ROUTES ---
   {
-    path: "/", // Đường dẫn gốc
-    element: <MainLayout />, // Layout bọc ngoài (Cái nhà)
+    path: "/",
+    element: <MainLayout />, // Layout bọc ngoài cho User
     children: [
       {
-        index: true, // Trang mặc định khi vào "/"
+        index: true,
         element: <HomePage />,
       },
       { path: "news", element: <div>Trang hiển thị news (Public)</div> }, // Path: /news
@@ -36,6 +37,7 @@ export const router = createBrowserRouter([
     ],
   },
 
+  // --- ADMIN ROUTES ---
   {
     path: "/admin", // Đường dẫn gốc
     element: <RequireAuth allowedRoles={["Admin"]} />,

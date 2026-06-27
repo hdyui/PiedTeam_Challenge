@@ -1,5 +1,18 @@
 import type { AccountStatus, UserRole } from "@/shared/types";
 
+export interface Employee {
+  id: string;
+  email: string;
+  fullName: string;
+  phoneNumber: string;
+  role: "Admin" | "Employee";
+  avatarUrl?: string; // Có thể có hoặc không
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Type dùng lúc tạo hoặc cập nhật nhân viên (có thể bỏ bớt id, ngày tạo...)
+export type EmployeePayload = Omit<Employee, "id" | "createdAt" | "updatedAt">;
 // hiển thị trong table
 export interface Employee {
   accountId: string;
