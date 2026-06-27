@@ -15,6 +15,7 @@ import EmployeeListPage from "@/features/employees/pages/EmployeeListPage";
 import EmployeeCreatePage from "@/features/employees/pages/EmployeeCreatePage";
 import EmployeeDetailPage from "@/features/employees/pages/EmployeeDetailPage";
 import EmployeeEditPage from "@/features/employees/pages/EmployeeEditPage";
+import EmployeeProfileLayout from "@/features/employees/components/layout/EmployeeProfileLayout";
 
 export const router = createBrowserRouter([
   // --- PUBLIC & USER ROUTES ---
@@ -79,7 +80,7 @@ export const router = createBrowserRouter([
     element: <RequireAuth allowedRoles={["Employee"]} />,
     children: [
       {
-        element: <MainLayout />, // Tạm dùng MainLayout, nếu có EmployeeLayout riêng thì thay vào
+        element: <EmployeeProfileLayout />, // Tạm dùng MainLayout, nếu có EmployeeLayout riêng thì thay vào
         children: [
           { index: true, element: <div>Trang dashboard của nhân viên</div> }, // Path: /employee
           {
