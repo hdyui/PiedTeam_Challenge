@@ -58,8 +58,14 @@ export const useLoginMutation = () => {
 
       toast.success("Đăng nhập thành công");
 <<<<<<< HEAD
+<<<<<<< HEAD
       if (userRole === "user") {
         navigate("/profile", { replace: true });
+=======
+      console.log(decoded.role);
+      if (decoded.role === "Admin") {
+        navigate("/admin", { replace: true });
+>>>>>>> uyen-fe
 =======
       console.log(decoded.role);
       if (decoded.role === "Admin") {

@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuthStore } from "@/features/auth/store";
 import { Button } from "@/shared/components/ui/button";
+<<<<<<< HEAD
 <<<<<<< HEAD:Project_Pied/src/features/auth/components/layouts/MainLayout.tsx
 import { useLogoutMutation } from "../../hooks/useAuth";
 import {
@@ -23,6 +24,9 @@ const navItems = [
 =======
 import { useLogoutMutation } from "@/features/auth/hooks/useAuth";
 >>>>>>> uyen-fe:Project_Pied/src/shared/layouts/MainLayout.tsx
+=======
+import { useLogoutMutation } from "@/features/auth/hooks/useAuth";
+>>>>>>> uyen-fe
 
 const MainLayout = () => {
   // const navigate = useNavigate();
@@ -42,8 +46,8 @@ const MainLayout = () => {
   //   setRender(!renderLogin); // Cách 1: Cập nhật state để trigger re-render
   //   navigate("/"); // Navigate to the home page after login
   // };
-
   return (
+<<<<<<< HEAD
 <<<<<<< HEAD:Project_Pied/src/features/auth/components/layouts/MainLayout.tsx
     <div className="min-h-screen flex bg-gray-50 text-gray-800">
       {/* Sidebar */}
@@ -55,36 +59,37 @@ const MainLayout = () => {
             </div>
             <div className="text-lg font-semibold">PiedTeam</div>
 =======
+=======
+>>>>>>> uyen-fe
     <div className="min-h-screen flex flex-col">
       {/* ===== HEADER - Tường nhà (Cố định) ===== */}
       <header className="bg-primary text-white px-4 py-4 sticky top-0 z-50 border-b border-white/10">
         <div className="max-w-4xl mx-auto flex justify-between items-center">
           <NavLink to="/" className="text-xl font-bold">
             Company CMS
+<<<<<<< HEAD
 >>>>>>> uyen-fe:Project_Pied/src/shared/layouts/MainLayout.tsx
+=======
+>>>>>>> uyen-fe
           </NavLink>
-        </div>
 
-        <nav className="flex-1 px-2 py-4 space-y-1">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <NavLink
-                to={item.to}
-                key={item.to}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-2 rounded-md hover:bg-gray-100 ${
-                    isActive ? "bg-primary/10 font-medium" : ""
-                  }`
-                }
-              >
-                <Icon className="w-5 h-5 text-gray-600" />
-                <span>{item.label}</span>
+          <div className="flex gap-4">
+            {/* <ModeToggle /> */}
+            <div className="flex gap-2">
+              <NavLink to="/">
+                {({ isActive }) => (
+                  <Button
+                    variant="ghost"
+                    className={
+                      isActive ? "bg-white/10 underline" : "text-white/80"
+                    }
+                  >
+                    Home
+                  </Button>
+                )}
               </NavLink>
-            );
-          })}
-        </nav>
 
+<<<<<<< HEAD
 <<<<<<< HEAD:Project_Pied/src/features/auth/components/layouts/MainLayout.tsx
         <div className="px-4 py-4 border-t">
           {token ? (
@@ -110,6 +115,8 @@ const MainLayout = () => {
         </div>
       </aside>
 =======
+=======
+>>>>>>> uyen-fe
               {token && (
                 <>
                   {/* Nút bấm dành riêng cho Employee */}
@@ -143,41 +150,22 @@ const MainLayout = () => {
                       )}
                     </NavLink>
                   )}
+<<<<<<< HEAD
 >>>>>>> uyen-fe:Project_Pied/src/shared/layouts/MainLayout.tsx
+=======
+>>>>>>> uyen-fe
 
-      <div className="flex-1 min-w-0 flex flex-col">
-        {/* Topbar */}
-        <header className="h-16 bg-white border-b flex items-center px-4 md:px-6">
-          <div className="flex items-center gap-3 md:hidden">
-            <Button variant="ghost" className="p-2">
-              <Menu className="w-5 h-5" />
-            </Button>
-          </div>
-
-          <div className="flex items-center gap-4 w-full">
-            <div className="hidden md:flex items-center bg-gray-100 rounded-md px-3 py-2 gap-2 w-1/3">
-              <Search className="w-4 h-4 text-gray-500" />
-              <input
-                placeholder="Search employees, news..."
-                className="bg-transparent outline-none text-sm w-full"
-              />
-            </div>
-
-            <div className="ml-auto flex items-center gap-3">
-              <Button variant="ghost" className="p-2">
-                <Bell className="w-5 h-5" />
-              </Button>
-
-              {token ? (
-                <div className="flex items-center gap-3">
-                  <div className="hidden sm:block text-sm text-gray-600">
-                    Admin
-                  </div>
-                  <Button variant="ghost" onClick={handleLogout}>
+                  <Button
+                    variant="ghost"
+                    onClick={handleLogout}
+                    disabled={useHandleLogout.isPending}
+                  >
                     Logout
                   </Button>
-                </div>
-              ) : (
+                </>
+              )}
+
+              {!token && (
                 <NavLink to="/login">
                   {({ isActive }) => (
                     <Button
@@ -193,8 +181,10 @@ const MainLayout = () => {
               )}
             </div>
           </div>
-        </header>
+        </div>
+      </header>
 
+<<<<<<< HEAD
 <<<<<<< HEAD:Project_Pied/src/features/auth/components/layouts/MainLayout.tsx
         {/* Content */}
         <main className="flex-1 overflow-auto p-6">
@@ -208,6 +198,8 @@ const MainLayout = () => {
         </footer>
       </div>
 =======
+=======
+>>>>>>> uyen-fe
       {/* ===== MAIN CONTENT - Outlet (Thay đổi theo URL) ===== */}
       <main className="min-h-screen bg-primary text-white overflow-x-hidden">
         <section className="w-full max-w-6xl mx-auto px-6 py-14">
@@ -218,7 +210,10 @@ const MainLayout = () => {
       <footer className="mt-auto bg-primary p-6 text-center text-sm text-gray-600 border-t border-white/10">
         © 2026 Company CMS - Piedteam React Course
       </footer>
+<<<<<<< HEAD
 >>>>>>> uyen-fe:Project_Pied/src/shared/layouts/MainLayout.tsx
+=======
+>>>>>>> uyen-fe
     </div>
   );
 };

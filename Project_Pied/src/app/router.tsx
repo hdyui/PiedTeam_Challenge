@@ -76,12 +76,14 @@ import { NewsDetailPage } from "@/features/news/pages/NewsDetailPage";
 import { NewsCreatePage } from "@/features/news/pages/NewsCreatePage";
 import { NewsEditPage } from "@/features/news/pages/NewsEditPage";
 =======
+=======
+>>>>>>> uyen-fe
 import { createBrowserRouter } from "react-router-dom";
 import RequireUnAuth from "@/shared/components/guards/RequireUnAuth";
 import RequireAuth from "@/shared/components/guards/RequireAuth";
 
-import MainLayout from "@/shared/layouts/MainLayout"; // Layout dùng cho Public & Employee
-import AdminMainLayout from "@/features/employees/components/layout/AdminMainLayout"; // Layout riêng cho Admin
+import MainLayout from "@/shared/layouts/MainLayout"; // Layout chung cho Public & Employee
+import AdminMainLayout from "@/shared/layouts/AdminMainLayout";
 
 // public & auth
 import { HomePage } from "@/features/auth/pages/HomePage";
@@ -93,6 +95,9 @@ import EmployeeListPage from "@/features/employees/pages/EmployeeListPage";
 import EmployeeCreatePage from "@/features/employees/pages/EmployeeCreatePage";
 import EmployeeDetailPage from "@/features/employees/pages/EmployeeDetailPage";
 import EmployeeEditPage from "@/features/employees/pages/EmployeeEditPage";
+<<<<<<< HEAD
+>>>>>>> uyen-fe
+=======
 >>>>>>> uyen-fe
 
 export const router = createBrowserRouter([
@@ -105,6 +110,7 @@ export const router = createBrowserRouter([
         index: true,
         element: <HomePage />,
       },
+<<<<<<< HEAD
 <<<<<<< HEAD
       // Các route KHÔNG yêu cầu đăng nhập (đã log in thì không được vào)
       {
@@ -130,12 +136,17 @@ export const router = createBrowserRouter([
             ],
           },
 =======
+=======
+>>>>>>> uyen-fe
       { path: "news", element: <div>Trang hiển thị news (Public)</div> }, // Path: /news
       {
         element: <RequireUnAuth />, // Guard bọc ở đây chặn quay về login or regis nếu đã đăng nhập
         children: [
           { path: "/login", element: <LoginPage /> },
           { path: "/register", element: <RegisterPage /> },
+<<<<<<< HEAD
+>>>>>>> uyen-fe
+=======
 >>>>>>> uyen-fe
         ],
       },
@@ -144,6 +155,7 @@ export const router = createBrowserRouter([
 
   // --- ADMIN ROUTES ---
   {
+<<<<<<< HEAD
 <<<<<<< HEAD
     path: "/admin",
     // Bọc Guard ngay từ ngoài cùng để bảo vệ luôn cả Layout của Admin
@@ -160,6 +172,8 @@ export const router = createBrowserRouter([
         ],
       },
 =======
+=======
+>>>>>>> uyen-fe
     path: "/admin", // Đường dẫn gốc
     element: <RequireAuth allowedRoles={["Admin"]} />,
     children: [
@@ -213,6 +227,9 @@ export const router = createBrowserRouter([
           }, // path: /employee/profile/update
         ],
       },
+<<<<<<< HEAD
+>>>>>>> uyen-fe
+=======
 >>>>>>> uyen-fe
     ],
   },
