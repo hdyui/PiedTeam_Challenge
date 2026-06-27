@@ -6,8 +6,6 @@ import { useAuthStore } from "../store";
 import { queryClient } from "@/lib/queryClient";
 import { jwtDecode } from "jwt-decode";
 import type { AuthResponse, JwtPayload, LoginRequest } from "../type";
-import axios from "axios";
-import { env } from "@/lib/env";
 
 export const useRegisterMutation = () => {
   const navigate = useNavigate();
@@ -40,40 +38,39 @@ export const useRegisterMutation = () => {
 
 export const useLoginMutation = () => {
   const location = useLocation();
+
   const from =
     (location.state as { from?: { pathname: string } })?.from?.pathname ?? "/";
+
   const navigate = useNavigate();
+
   const setAuth = useAuthStore((state) => state.setAuth);
 
   return useMutation<AuthResponse, Error, LoginRequest>({
     mutationFn: (data) => authApi.login(data),
-    onSuccess: async (res) => {
-      console.log(res);
-
-      const data = await axios.get(`${env.API_URL}user/me`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${res.accessToken}`,
-        },
-      });
-      const userRole = data.data.data.role;
-      console.log(userRole);
-
+    onSuccess: (res) => {
+      const decoded = jwtDecode<JwtPayload>(res.accessToken);
+      console.log(decoded);
       setAuth({
         accessToken: res.accessToken,
-        role: userRole,
+        role: decoded.role,
       });
-      //queryClient.setQueryData(["me"], data);
+
       toast.success("Đăng nhập thành công");
+<<<<<<< HEAD
       if (userRole === "user") {
         navigate("/profile", { replace: true });
+=======
+      console.log(decoded.role);
+      if (decoded.role === "Admin") {
+        navigate("/admin", { replace: true });
+>>>>>>> uyen-fe
       } else {
-        navigate(from, { replace: true });
+        navigate("/employee");
       }
     },
   });
 };
-
 export const useLogoutMutation = () => {
   const navigate = useNavigate();
   const clearTokens = useAuthStore((state) => state.clearAuth);

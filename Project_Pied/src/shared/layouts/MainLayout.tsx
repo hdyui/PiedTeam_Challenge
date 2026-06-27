@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuthStore } from "@/features/auth/store";
 import { Button } from "@/shared/components/ui/button";
+<<<<<<< HEAD:Project_Pied/src/features/auth/components/layouts/MainLayout.tsx
 import { useLogoutMutation } from "../../hooks/useAuth";
 import {
   Home,
@@ -19,9 +20,13 @@ const navItems = [
   { to: "/news", label: "News", icon: Newspaper },
   { to: "/recruiments", label: "Recruiting", icon: Briefcase },
 ];
+=======
+import { useLogoutMutation } from "@/features/auth/hooks/useAuth";
+>>>>>>> uyen-fe:Project_Pied/src/shared/layouts/MainLayout.tsx
 
 const MainLayout = () => {
   // const navigate = useNavigate();
+  const role = useAuthStore((state) => state.role);
   const token = useAuthStore((state) => !!state.accessToken);
   //const token = localStorage.getItem("accessToken");
   // const [render, setRender] = useState(false);
@@ -39,6 +44,7 @@ const MainLayout = () => {
   // };
 
   return (
+<<<<<<< HEAD:Project_Pied/src/features/auth/components/layouts/MainLayout.tsx
     <div className="min-h-screen flex bg-gray-50 text-gray-800">
       {/* Sidebar */}
       <aside className="hidden md:flex flex-col w-64 bg-white border-r">
@@ -48,6 +54,14 @@ const MainLayout = () => {
               P
             </div>
             <div className="text-lg font-semibold">PiedTeam</div>
+=======
+    <div className="min-h-screen flex flex-col">
+      {/* ===== HEADER - Tường nhà (Cố định) ===== */}
+      <header className="bg-primary text-white px-4 py-4 sticky top-0 z-50 border-b border-white/10">
+        <div className="max-w-4xl mx-auto flex justify-between items-center">
+          <NavLink to="/" className="text-xl font-bold">
+            Company CMS
+>>>>>>> uyen-fe:Project_Pied/src/shared/layouts/MainLayout.tsx
           </NavLink>
         </div>
 
@@ -71,6 +85,7 @@ const MainLayout = () => {
           })}
         </nav>
 
+<<<<<<< HEAD:Project_Pied/src/features/auth/components/layouts/MainLayout.tsx
         <div className="px-4 py-4 border-t">
           {token ? (
             <div className="flex items-center justify-between">
@@ -94,6 +109,41 @@ const MainLayout = () => {
           )}
         </div>
       </aside>
+=======
+              {token && (
+                <>
+                  {/* Nút bấm dành riêng cho Employee */}
+                  {role === "Employee" && (
+                    <NavLink to="/employee">
+                      {({ isActive }) => (
+                        <Button
+                          variant="ghost"
+                          className={
+                            isActive ? "bg-white/10 underline" : "text-white/80"
+                          }
+                        >
+                          Dashboard
+                        </Button>
+                      )}
+                    </NavLink>
+                  )}
+
+                  {/* Nút bấm dành riêng cho Admin (Phòng hờ Admin đứng ở trang Home muốn quay lại Admin) */}
+                  {role === "Admin" && (
+                    <NavLink to="/admin">
+                      {({ isActive }) => (
+                        <Button
+                          variant="ghost"
+                          className={
+                            isActive ? "bg-white/10 underline" : "text-white/80"
+                          }
+                        >
+                          Admin Panel
+                        </Button>
+                      )}
+                    </NavLink>
+                  )}
+>>>>>>> uyen-fe:Project_Pied/src/shared/layouts/MainLayout.tsx
 
       <div className="flex-1 min-w-0 flex flex-col">
         {/* Topbar */}
@@ -145,6 +195,7 @@ const MainLayout = () => {
           </div>
         </header>
 
+<<<<<<< HEAD:Project_Pied/src/features/auth/components/layouts/MainLayout.tsx
         {/* Content */}
         <main className="flex-1 overflow-auto p-6">
           <div className="max-w-7xl mx-auto">
@@ -156,6 +207,18 @@ const MainLayout = () => {
           © 2026 Business Management — PiedTeam
         </footer>
       </div>
+=======
+      {/* ===== MAIN CONTENT - Outlet (Thay đổi theo URL) ===== */}
+      <main className="min-h-screen bg-primary text-white overflow-x-hidden">
+        <section className="w-full max-w-6xl mx-auto px-6 py-14">
+          <Outlet />
+        </section>
+      </main>
+      {/* ===== FOOTER - Nền nhà (Cố định) ===== */}
+      <footer className="mt-auto bg-primary p-6 text-center text-sm text-gray-600 border-t border-white/10">
+        © 2026 Company CMS - Piedteam React Course
+      </footer>
+>>>>>>> uyen-fe:Project_Pied/src/shared/layouts/MainLayout.tsx
     </div>
   );
 };
