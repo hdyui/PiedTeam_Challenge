@@ -1,5 +1,4 @@
-const API_URL = "/api/v1";
-
+const API_URL = "https://vnz-challenge-deploy-latest.onrender.com/api/v1";
 if (!API_URL) {
   throw new Error("Error");
 }

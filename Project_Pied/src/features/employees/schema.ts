@@ -1,15 +1,15 @@
 import { z } from "zod";
 
 export const UpdateProfileSchema = z.object({
-  fullName: z
-    .string()
-    .min(1, { message: "Fullname is required" })
-    .min(3, { message: "Full name must be at least 3 characters" })
-    .max(50, { message: "Full name must be less than 50 characters" }),
-  email: z
-    .email({ message: "Email is not valid" })
-    .min(1, { message: "Email is required" })
-    .min(5, { message: "Email must be at least 5 characters" })
-    .max(100, { message: "Email must be less than 100 characters" }),
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  position: z.string().min(1, "Position is required"),
+  phone: z.string().regex(/^[0-9]{10,11}$/, "Invalid phone number"),
+  address: z.string().nullable().optional(),
+  hobby: z.string().nullable().optional(),
+  quote: z.string().nullable().optional(),
+  avatarImg: z.string().url().nullable().optional(),
+  coverImg: z.string().url().nullable().optional(),
 });
+
 export type UpdateProfileSchemaType = z.infer<typeof UpdateProfileSchema>;

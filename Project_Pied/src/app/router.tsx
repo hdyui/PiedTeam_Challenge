@@ -15,6 +15,7 @@ import EmployeeListPage from "@/features/employees/pages/EmployeeListPage";
 import EmployeeCreatePage from "@/features/employees/pages/EmployeeCreatePage";
 import EmployeeDetailPage from "@/features/employees/pages/EmployeeDetailPage";
 import EmployeeEditPage from "@/features/employees/pages/EmployeeEditPage";
+import EmployeeProfileLayout from "@/features/employees/components/layout/EmployeeProfileLayout";
 
 export const router = createBrowserRouter([
   // --- PUBLIC & USER ROUTES ---
@@ -76,20 +77,25 @@ export const router = createBrowserRouter([
   },
   {
     path: "/employee",
-    element: <RequireAuth allowedRoles={["Employee"]} />,
+    element: <RequireAuth allowedRoles={["Employee", "Admin"]} />, // Admin cũng vào được để quản lý
     children: [
       {
-        element: <MainLayout />, // Tạm dùng MainLayout, nếu có EmployeeLayout riêng thì thay vào
+        element: <MainLayout />,
         children: [
-          { index: true, element: <div>Trang dashboard của nhân viên</div> }, // Path: /employee
+          { index: true, element: <div>Trang Dashboard Employee</div> },
           {
-            path: "profile",
-            element: <div>Trang hiển thị profile nhân viên</div>,
-          }, // path: /employee/profile
-          {
-            path: "profile/update",
-            element: <div>Trang cập nhật profile nhân viên</div>,
-          }, // path: /employee/profile/update
+            element: <EmployeeProfileLayout />,
+            children: [
+              {
+                path: "profile/:userId",
+                element: <div>Trang detailed profile của employee</div>,
+              }, // Dùng :userId để Admin xem được profile người khác
+              {
+                path: "profile/:userId/edit",
+                element: <div>Trang update profile của employee</div>,
+              },
+            ],
+          },
         ],
       },
     ],

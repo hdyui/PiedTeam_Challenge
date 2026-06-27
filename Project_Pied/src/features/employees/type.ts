@@ -1,58 +1,64 @@
 import type { AccountStatus, UserRole } from "@/shared/types";
 
-export interface Employee {
+// Dùng cho cả GET /users/{userId} và kết quả trả về của GET /auth/me (phần user)
+export interface UserProfile {
+  id: string;
+  firstName: string;
+  lastName: string;
+  fullName: string;
+  position: string;
+  phone: string;
+  address: string | null;
+  hobby: string | null;
+  quote: string | null;
+  avatarImg: string | null;
+  coverImg: string | null;
+  account: AccountDetail[];
+  departments?: DepartmentBrief[]; // Lấy từ API detail user
+}
+
+export interface DepartmentBrief {
+  id: string;
+  name: string;
+  departmentCode: string;
+  joinedAt: string;
+}
+
+export interface AccountDetail {
   id: string;
   email: string;
-  fullName: string;
-  phoneNumber: string;
-  role: "Admin" | "Employee";
-  avatarUrl?: string; // Có thể có hoặc không
-  createdAt: string;
-  updatedAt: string;
-}
-
-// Type dùng lúc tạo hoặc cập nhật nhân viên (có thể bỏ bớt id, ngày tạo...)
-export type EmployeePayload = Omit<Employee, "id" | "createdAt" | "updatedAt">;
-// hiển thị trong table
-export interface Employee {
-  accountId: string;
-  userId: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  phone: string | null;
-  departmentId: string | null;
   role: UserRole;
   status: AccountStatus;
-  createdAt: string;
 }
 
-// create
-export interface CreateEmployeePayload {
-  email: string;
-  passwordHash: string;
+// Response đầy đủ cho GET /users/{userId}
+export interface UserDetailResponse {
+  id: string;
   firstName: string;
   lastName: string;
-  phone?: string;
-  departmentId?: string;
+  fullName: string;
+  position: string;
+  phone: string;
+  address: string | null;
+  hobby: string | null;
+  quote: string | null;
+  avatarImg: string | null;
+  coverImg: string | null;
+  account: AccountDetail;
+  departments: DepartmentBrief[];
+  createdAt: string;
+  updatedAt: string | null;
 }
 
-// update
-export interface UpdateEmployeePayload {
-  firstName?: string;
-  lastName?: string;
-  phone?: string;
-  departmentId?: string;
-  status?: AccountStatus; // đóng mở account
-}
-
-// params đẩy lên url để filter/search tbl
-export interface EmployeeQueryParams {
-  pageIndex: number;
-  pageSize: number;
-  search?: string; // tìm theo tên hoặc email
-  status?: AccountStatus;
-  departmentId?: string;
-  sortBy?: string;
-  isDescending?: boolean;
+// Request Payload cho PUT /api/v1/users/{userId} (Update Profile)
+export interface UpdateUserPayload {
+  firstName: string;
+  lastName: string;
+  position: string;
+  phone: string;
+  address: string;
+  hobby: string;
+  quote: string;
+  avatarImg: string;
+  coverImg: string;
 }
