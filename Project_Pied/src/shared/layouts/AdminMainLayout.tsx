@@ -20,7 +20,7 @@ const navItems = [
   { to: "/recruiments", label: "Recruiting", icon: Briefcase },
 ];
 
-const MainLayout = () => {
+const AdminMainLayout = () => {
   // const navigate = useNavigate();
   const token = useAuthStore((state) => !!state.accessToken);
   //const token = localStorage.getItem("accessToken");
@@ -160,4 +160,4 @@ const MainLayout = () => {
   );
 };
 
-export default MainLayout;
+export default AdminMainLayout;
