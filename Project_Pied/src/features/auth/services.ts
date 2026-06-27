@@ -20,21 +20,21 @@ export const authApi = {
     ) as unknown as Promise<AuthResponse>;
   },
 
-  async register(credentials: UserDto): Promise<AuthResponse> {
-    return apiClient.post(
-      "/auth/register",
-      credentials,
-    ) as unknown as Promise<AuthResponse>;
+  // async register(credentials: UserDto): Promise<AuthResponse> {
+  //   return apiClient.post(
+  //     "/auth/register",
+  //     credentials,
+  //   ) as unknown as Promise<AuthResponse>;
 
-    // BE trả: { message, result: { access_Token, refresh_Token } }
-    // FE nhận: { accessToken, refreshToken }
-  },
+  //   // BE trả: { message, result: { access_Token, refresh_Token } }
+  //   // FE nhận: { accessToken, refreshToken }
+  // },
 
   async logout(): Promise<void> {
     await apiClient.post("/auth/logout");
   },
 
   async getMe(): Promise<UserProfile> {
-    return apiClient.get("/user/me") as unknown as Promise<UserProfile>;
+    return apiClient.get("/auth/me") as unknown as Promise<UserProfile>;
   },
 };

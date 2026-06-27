@@ -117,7 +117,7 @@ const MainLayout = () => {
       </main>
       {/* ===== FOOTER - Nền nhà (Cố định) ===== */}
       <footer className="mt-auto bg-primary p-6 text-center text-sm text-gray-600 border-t border-white/10">
-        © 2026 Business Management - Piedteam React Course
+        © 2026 Company CMS - Piedteam React Course
       </footer>
     </div>
   );
