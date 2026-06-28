@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom"; // Hoặc 'next/link' nếu bạn dùng Next.js
 import { usePublicNewsList } from "@/features/publicNews/hooks/usePublicNewsList"; // Điều chỉnh lại đường dẫn import nếu cần
-import { useDebounce } from "@/features/publicNews/hooks/useDebounce"; // Giả sử bạn có 1 custom hook để debounce search
+import { useDebounce } from "@/shared/hooks/useDebounce"; // Giả sử bạn có 1 custom hook để debounce search
 
 const PublicNewsPage = () => {
   // ─── States ──────────────────────────────────────────────────────────────────

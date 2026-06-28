@@ -8,7 +8,7 @@ import {
   useUploadNewsImages,
 } from "../hooks/useNews";
 import { NewsStatusBadge } from "../components/NewsStatusBadge";
-import { Trash2, Upload } from "lucide-react";
+import { Loader2, Trash2, Upload } from "lucide-react";
 import { useRef } from "react";
 
 export const NewsDetailPage = () => {
@@ -16,8 +16,11 @@ export const NewsDetailPage = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data, isLoading, isError } = useNewsDetail(id!);
-  const { mutate: deleteImage, isPending: isDeletingImage } =
-    useDeleteNewsImage(id!);
+  const {
+    mutate: deleteImage,
+    isPending: isDeletingImage,
+    variables: deletingImageId,
+  } = useDeleteNewsImage(id!);
   const { mutate: uploadImages, isPending: isUploading } = useUploadNewsImages(
     id!,
   );
@@ -146,9 +149,13 @@ export const NewsDetailPage = () => {
                 size="sm"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isUploading}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                <Upload size={14} />
+                {isUploading ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : (
+                  <Upload size={14} />
+                )}
                 {isUploading ? "Đang upload..." : "Upload ảnh"}
               </Button>
             </div>
@@ -172,11 +179,15 @@ export const NewsDetailPage = () => {
                   />
                   <button
                     onClick={() => deleteImage(img.id)}
-                    disabled={isDeletingImage}
-                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    disabled={isDeletingImage && deletingImageId === img.id}
+                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-70 disabled:cursor-not-allowed"
                     title="Xóa ảnh"
                   >
-                    <Trash2 size={12} />
+                    {isDeletingImage && deletingImageId === img.id ? (
+                      <Loader2 size={12} className="animate-spin" />
+                    ) : (
+                      <Trash2 size={12} />
+                    )}
                   </button>
                 </div>
               ))}

@@ -22,6 +22,7 @@ import {
 } from "@/features/news";
 import PublicNewsPage from "@/features/publicNews/pages/PublicNewsPage";
 import PublicNewsDetailPage from "@/features/publicNews/pages/PublicNewsDetailPage";
+import { AdminDashboardPage } from "@/features/dashBoard";
 
 export const router = createBrowserRouter([
   // --- PUBLIC & USER ROUTES ---
@@ -50,7 +51,7 @@ export const router = createBrowserRouter([
       {
         element: <AdminMainLayout />,
         children: [
-          { index: true, element: <div>Trang dashboard của Admin</div> },
+          { index: true, element: <AdminDashboardPage /> },
 
           // Employees
           { path: "employees", element: <EmployeeListPage /> },

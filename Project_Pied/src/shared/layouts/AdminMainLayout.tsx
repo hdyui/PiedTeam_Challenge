@@ -14,10 +14,15 @@ import {
 import { useLogoutMutation } from "@/features/auth/hooks/useAuth";
 
 const navItems = [
-  { to: "/", label: "Dashboard", icon: Home },
-  { to: "/employees", label: "Employees", icon: Users },
-  { to: "/news", label: "News", icon: Newspaper },
-  { to: "/recruiments", label: "Recruiting", icon: Briefcase },
+  { to: "/admin", label: "Dashboard", icon: Home, end: true },
+  { to: "/employees", label: "Employees", icon: Users, end: false },
+  { to: "/admin/news", label: "News", icon: Newspaper, end: false },
+  {
+    to: "/admin/recruiments",
+    label: "Recruiting",
+    icon: Briefcase,
+    end: false,
+  },
 ];
 
 const AdminMainLayout = () => {
@@ -41,7 +46,7 @@ const AdminMainLayout = () => {
   return (
     <div className="min-h-screen flex bg-gray-50 text-gray-800">
       {/* Sidebar */}
-      <aside className="hidden md:flex flex-col w-64 bg-white border-r">
+      <aside className="hidden md:flex flex-col w-64 bg-white border-r h-screen sticky top-0">
         <div className="h-16 flex items-center px-6 border-b">
           <NavLink to="/" className="flex items-center gap-3">
             <div className="w-8 h-8 bg-primary rounded flex items-center justify-center text-white font-bold">
@@ -58,6 +63,7 @@ const AdminMainLayout = () => {
               <NavLink
                 to={item.to}
                 key={item.to}
+                end={item.end}
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-2 rounded-md hover:bg-gray-100 ${
                     isActive ? "bg-primary/10 font-medium" : ""
@@ -71,7 +77,7 @@ const AdminMainLayout = () => {
           })}
         </nav>
 
-        <div className="px-4 py-4 border-t">
+        <div className="px-4 py-4 border-t border-r">
           {token ? (
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -83,7 +89,12 @@ const AdminMainLayout = () => {
                   <div className="text-xs text-gray-500">Admin</div>
                 </div>
               </div>
-              <Button variant="ghost" onClick={handleLogout}>
+              <Button
+                variant="ghost"
+                onClick={handleLogout}
+                className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                title="Đăng xuất"
+              >
                 <LogOut className="w-4 h-4" />
               </Button>
             </div>
@@ -123,7 +134,11 @@ const AdminMainLayout = () => {
                   <div className="hidden sm:block text-sm text-gray-600">
                     Admin
                   </div>
-                  <Button variant="ghost" onClick={handleLogout}>
+                  <Button
+                    variant="outline"
+                    onClick={handleLogout}
+                    className="border-red-200 text-red-500 hover:bg-red-50 hover:text-red-600"
+                  >
                     Logout
                   </Button>
                 </div>

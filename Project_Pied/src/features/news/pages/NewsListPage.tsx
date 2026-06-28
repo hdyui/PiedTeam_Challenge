@@ -1,10 +1,11 @@
 // src/features/news/pages/NewsListPage.tsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { DataTable, type ColumnDef } from "@/shared/components/ui/DataTable";
 import { UrlPagination } from "@/shared/components/ui/UrlPagination";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
+import { useDebounce } from "@/shared/hooks/useDebounce";
 import {
   Select,
   SelectContent,
@@ -16,7 +17,7 @@ import { Card, CardContent } from "@/shared/components/ui/card";
 import { useNewsList, useDeleteNews } from "../hooks/useNews";
 import { NewsStatusBadge } from "../components/NewsStatusBadge";
 import type { NewsListItem, NewsStatus } from "../type";
-import { Trash2 } from "lucide-react";
+import { Loader2, Search, SlidersHorizontal, Trash2 } from "lucide-react";
 
 const LIMIT = 10;
 
@@ -24,32 +25,40 @@ export const NewsListPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const page = Number(searchParams.get("page")) || 1;
 
-  const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
+  const debouncedSearch = useDebounce(searchInput.trim(), 350);
   const [status, setStatus] = useState<NewsStatus | "all">("all");
 
   const { data, isLoading } = useNewsList({
     page,
     limit: LIMIT,
-    search: search || undefined,
+    search: debouncedSearch || undefined,
     status: status === "all" ? undefined : status,
     sortBy: "createdAt",
     sortOrder: "desc",
   });
 
-  const { mutate: deleteNews } = useDeleteNews();
+  const {
+    mutate: deleteNews,
+    isPending: isDeleting,
+    variables: deletingId,
+  } = useDeleteNews();
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSearch(searchInput);
-    searchParams.set("page", "1");
-    setSearchParams(searchParams);
+  const resetToFirstPage = () => {
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.set("page", "1");
+    setSearchParams(nextParams);
   };
+
+  useEffect(() => {
+    if (page !== 1) {
+      resetToFirstPage();
+    }
+  }, [debouncedSearch]);
 
   const handleStatusChange = (val: string) => {
     setStatus(val as NewsStatus | "all");
-    searchParams.set("page", "1");
-    setSearchParams(searchParams);
+    resetToFirstPage();
   };
 
   const handleDelete = (id: string) => {
@@ -118,10 +127,15 @@ export const NewsListPage = () => {
           </Link>
           <button
             onClick={() => handleDelete(item.id)}
-            className="text-red-500 hover:text-red-700 transition-colors"
+            disabled={isDeleting && deletingId === item.id}
+            className="text-red-500 hover:text-red-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             title="Xóa bài viết"
           >
-            <Trash2 size={15} />
+            {isDeleting && deletingId === item.id ? (
+              <Loader2 size={15} className="animate-spin" />
+            ) : (
+              <Trash2 size={15} />
+            )}
           </button>
         </div>
       ),
@@ -151,29 +165,48 @@ export const NewsListPage = () => {
       </div>
 
       {/* Bộ lọc */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <form onSubmit={handleSearch} className="flex gap-2 flex-1">
-          <Input
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Tìm kiếm theo tiêu đề..."
-            className="max-w-sm"
-          />
-          <Button type="submit" variant="outline">
-            Tìm
-          </Button>
-        </form>
-        <Select value={status} onValueChange={handleStatusChange}>
-          <SelectTrigger className="w-44">
-            <SelectValue placeholder="Tất cả trạng thái" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tất cả</SelectItem>
-            <SelectItem value="draft">Nháp</SelectItem>
-            <SelectItem value="published">Đã xuất bản</SelectItem>
-            <SelectItem value="archived">Lưu trữ</SelectItem>
-          </SelectContent>
-        </Select>
+      <div className="grid gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:grid-cols-[minmax(0,1fr)_260px] sm:items-center">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="relative flex-1 sm:max-w-md">
+            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
+            <Input
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="Tìm kiếm theo tiêu đề..."
+              className="h-11 rounded-xl border-gray-200 bg-slate-50 pl-11 pr-4 text-sm shadow-sm transition focus:bg-white focus:border-blue-300"
+            />
+          </div>
+          {searchInput ? (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setSearchInput("")}
+              className="h-11 min-w-[104px] rounded-xl border-blue-200 bg-blue-50 px-4 text-blue-700 shadow-sm transition hover:bg-blue-100 hover:text-blue-800"
+            >
+              Xóa
+            </Button>
+          ) : null}
+        </div>
+
+        <div className="flex items-center justify-between gap-3 rounded-2xl border border-gray-200 bg-slate-50 p-3 shadow-sm">
+          <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
+            <SlidersHorizontal className="size-4 text-gray-500" />
+            Trạng thái
+          </div>
+          <div className="w-full sm:w-auto">
+            <Select value={status} onValueChange={handleStatusChange}>
+              <SelectTrigger className="h-11 w-full rounded-xl border-gray-200 bg-white shadow-sm">
+                <SelectValue placeholder="Tất cả trạng thái" />
+              </SelectTrigger>
+              <SelectContent align="start">
+                <SelectItem value="all">Tất cả</SelectItem>
+                <SelectItem value="draft">Nháp</SelectItem>
+                <SelectItem value="published">Đã xuất bản</SelectItem>
+                <SelectItem value="archived">Lưu trữ</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
       </div>
 
       {/* Table */}

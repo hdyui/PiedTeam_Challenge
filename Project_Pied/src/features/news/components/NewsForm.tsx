@@ -1,4 +1,5 @@
 // src/features/news/components/NewsForm.tsx
+import { Loader2 } from "lucide-react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { NewsFormSchema, type NewsFormSchemaType } from "../schema";
@@ -178,21 +179,31 @@ export const NewsForm = ({
         </CardContent>
 
         <CardFooter className="flex justify-end gap-3 bg-gray-50/50 px-6 py-4 border-t">
-          <Link to="/admin/news">
-            <Button variant="outline" type="button" className="w-24">
+          <Link to="/admin/news" tabIndex={isLoading ? -1 : 0}>
+            <Button
+              variant="outline"
+              type="button"
+              disabled={isLoading}
+              className="w-24 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
               Hủy
             </Button>
           </Link>
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-40 bg-blue-600 hover:bg-blue-700 text-white"
+            className="w-40 bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            {isLoading
-              ? "Đang lưu..."
-              : isEdit
-                ? "Lưu thay đổi"
-                : "Xuất bản ngay"}
+            {isLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Đang lưu...
+              </>
+            ) : isEdit ? (
+              "Lưu thay đổi"
+            ) : (
+              "Xuất bản ngay"
+            )}
           </Button>
         </CardFooter>
       </form>
