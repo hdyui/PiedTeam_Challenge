@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { Link, NavLink, Outlet } from "react-router-dom";
 import { useAuthStore } from "@/features/auth/store";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -10,40 +10,60 @@ import {
   LogOut,
   Menu,
   Search,
+  User,
 } from "lucide-react";
-import { useLogoutMutation } from "@/features/auth/hooks/useAuth";
+import { useLogoutMutation, useUser } from "@/features/auth/hooks/useAuth";
 
 const navItems = [
-  { to: "/", label: "Dashboard", icon: Home },
-  { to: "/employees", label: "Employees", icon: Users },
-  { to: "/news", label: "News", icon: Newspaper },
-  { to: "/recruiments", label: "Recruiting", icon: Briefcase },
+  { to: "/admin", label: "Dashboard", icon: Home }, // Bác nhớ check lại route này cho đúng nhé
+  { to: "/admin/employees", label: "Employees", icon: Users },
+  { to: "/admin/news", label: "News", icon: Newspaper },
+  { to: "/admin/recruitments", label: "Recruiting", icon: Briefcase },
+  { to: "/admin/profile", label: "My Profile", icon: User },
 ];
 
 const AdminMainLayout = () => {
-  // const navigate = useNavigate();
   const token = useAuthStore((state) => !!state.accessToken);
-  //const token = localStorage.getItem("accessToken");
-  // const [render, setRender] = useState(false);
-  // const clearTokens = useAuthStore((state) => state.clearTokens);
   const useHandleLogout = useLogoutMutation();
+
+  // GỌI API GET ME Ở ĐÂY
+  //const [error, setError] = useState<string | null>(null);
+  const {
+    data: user,
+    isLoading, // true = lần đầu fetch, chưa có data, true khi đang fetch
+    isError, // true = fetch bị lõi
+    error, // trả về OB nếu có lỗi
+    refetch, // Func để re-fetch
+    isFetching, // true = đang fetch ( dù có hay không data )
+  } = useUser();
+  console.log(user);
   const handleLogout = async () => {
     useHandleLogout.mutate();
   };
 
-  // const [renderLogin, setRenderLogin] = useState(false);
-  // const handleLogin = () => {
-  //   localStorage.setItem("accessToken", "fake-token-1234567"); // Simulate storing a token after login
-  //   setRender(!renderLogin); // Cách 1: Cập nhật state để trigger re-render
-  //   navigate("/"); // Navigate to the home page after login
-  // };
+  // Hàm render Avatar (Có ảnh thì hiện ảnh, không thì lấy chữ cái đầu)
+  const renderAvatar = () => {
+    if (user?.user?.avatarImg) {
+      return (
+        <img
+          src={user.user.avatarImg}
+          alt="Avatar"
+          className="w-full h-full object-cover rounded-full"
+        />
+      );
+    }
+    return user?.user?.firstName?.charAt(0) || "U";
+  };
+
+  const fullName =
+    `${user?.user?.lastName || ""} ${user?.user?.firstName || ""}`.trim();
 
   return (
     <div className="min-h-screen flex bg-gray-50 text-gray-800">
       {/* Sidebar */}
       <aside className="hidden md:flex flex-col w-64 bg-white border-r">
         <div className="h-16 flex items-center px-6 border-b">
-          <NavLink to="/" className="flex items-center gap-3">
+          <NavLink to="/admin" className="flex items-center gap-3">
             <div className="w-8 h-8 bg-primary rounded flex items-center justify-center text-white font-bold">
               P
             </div>
@@ -58,9 +78,10 @@ const AdminMainLayout = () => {
               <NavLink
                 to={item.to}
                 key={item.to}
+                end={item.to === "/admin"} // Đảm bảo trang chủ admin ko bị active sai
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-2 rounded-md hover:bg-gray-100 ${
-                    isActive ? "bg-primary/10 font-medium" : ""
+                    isActive ? "bg-primary/10 font-medium text-primary" : ""
                   }`
                 }
               >
@@ -71,25 +92,36 @@ const AdminMainLayout = () => {
           })}
         </nav>
 
+        {/* THÔNG TIN USER GÓC DƯỚI SIDEBAR */}
         <div className="px-4 py-4 border-t">
           {token ? (
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 bg-gray-200 rounded-full flex items-center justify-center">
-                  U
+              <Link
+                to="/admin/profile"
+                className="flex items-center gap-3 hover:bg-slate-100 p-2 -ml-2 rounded-lg transition-colors cursor-pointer w-full overflow-hidden"
+              >
+                <div className="w-9 h-9 bg-primary/10 text-primary font-bold rounded-full flex items-center justify-center overflow-hidden shrink-0">
+                  {isLoading ? "..." : renderAvatar()}
                 </div>
-                <div>
-                  <div className="text-sm font-medium">User</div>
-                  <div className="text-xs text-gray-500">Admin</div>
+                <div className="flex flex-col w-full overflow-hidden pr-2">
+                  <div
+                    className="text-sm font-medium truncate"
+                    title={fullName}
+                  >
+                    {isLoading ? "Loading..." : fullName || "Admin"}
+                  </div>
+                  <div className="text-xs text-gray-500 truncate">
+                    {user?.user?.position || user?.role}
+                  </div>
                 </div>
-              </div>
-              <Button variant="ghost" onClick={handleLogout}>
-                <LogOut className="w-4 h-4" />
+              </Link>
+              <Button variant="ghost" size="icon" onClick={handleLogout}>
+                <LogOut className="w-4 h-4 text-red-500" />
               </Button>
             </div>
           ) : (
             <NavLink to="/login">
-              <Button>Login</Button>
+              <Button className="w-full">Login</Button>
             </NavLink>
           )}
         </div>
@@ -118,10 +150,11 @@ const AdminMainLayout = () => {
                 <Bell className="w-5 h-5" />
               </Button>
 
+              {/* THÔNG TIN USER GÓC TRÊN TOPBAR */}
               {token ? (
                 <div className="flex items-center gap-3">
-                  <div className="hidden sm:block text-sm text-gray-600">
-                    Admin
+                  <div className="hidden sm:block text-sm text-gray-800 font-medium">
+                    {isLoading ? "Loading..." : fullName || "Admin"}
                   </div>
                   <Button variant="ghost" onClick={handleLogout}>
                     Logout
@@ -129,16 +162,7 @@ const AdminMainLayout = () => {
                 </div>
               ) : (
                 <NavLink to="/login">
-                  {({ isActive }) => (
-                    <Button
-                      variant="ghost"
-                      className={
-                        isActive ? "bg-white/10 underline" : "text-white/80"
-                      }
-                    >
-                      Login
-                    </Button>
-                  )}
+                  <Button variant="ghost">Login</Button>
                 </NavLink>
               )}
             </div>
@@ -146,7 +170,7 @@ const AdminMainLayout = () => {
         </header>
 
         {/* Content */}
-        <main className="flex-1 overflow-auto p-6">
+        <main className="flex-1 overflow-auto p-6 bg-slate-100">
           <div className="max-w-7xl mx-auto">
             <Outlet />
           </div>

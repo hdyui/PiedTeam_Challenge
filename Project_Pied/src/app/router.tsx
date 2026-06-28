@@ -1,58 +1,73 @@
 import { createBrowserRouter } from "react-router-dom";
-import RequireUnAuth from "@/shared/components/guards/RequireUnAuth";
 import RequireAuth from "@/shared/components/guards/RequireAuth";
+import RequireUnAuth from "@/shared/components/guards/RequireUnAuth";
 
-import MainLayout from "@/shared/layouts/MainLayout"; // Layout chung cho Public & Employee
+// --- CÁC LAYOUT ---
+import MainLayout from "@/shared/layouts/MainLayout";
 import AdminMainLayout from "@/shared/layouts/AdminMainLayout";
+import EmployeeProfileLayout from "@/features/employees/components/layout/EmployeeProfileLayout";
 
-// public & auth
+// --- PUBLIC & AUTH ---
 import { HomePage } from "@/features/auth/pages/HomePage";
 import { LoginPage } from "@/features/auth/pages/LoginPage";
 import { RegisterPage } from "@/features/auth/pages/RegisterPage";
 
-// admin & employee
+// --- ADMIN & EMPLOYEE (QUẢN LÝ) ---
 import EmployeeListPage from "@/features/employees/pages/EmployeeListPage";
 import EmployeeCreatePage from "@/features/employees/pages/EmployeeCreatePage";
 import EmployeeDetailPage from "@/features/employees/pages/EmployeeDetailPage";
 import EmployeeEditPage from "@/features/employees/pages/EmployeeEditPage";
-import EmployeeProfileLayout from "@/features/employees/components/layout/EmployeeProfileLayout";
+import { ProfilePage } from "@/features/employees/pages/EmployeeProfilePage";
+
+// IMPORT CÁI TRANG PROFILE DÙNG CHUNG Ở ĐÂY (Bác nhớ check lại đường dẫn import cho chuẩn)
 
 export const router = createBrowserRouter([
-  // --- PUBLIC & USER ROUTES ---
+  // ==========================================
+  // 1. AUTH ROUTES (Đứng độc lập, không bọc Layout nào để màn hình login trắng tinh)
+  // ==========================================
   {
-    path: "/",
-    element: <MainLayout />, // Layout bọc ngoài cho User
+    element: <RequireUnAuth />,
     children: [
-      {
-        index: true,
-        element: <HomePage />,
-      },
-      { path: "news", element: <div>Trang hiển thị news (Public)</div> }, // Path: /news
-      {
-        element: <RequireUnAuth />, // Guard bọc ở đây chặn quay về login or regis nếu đã đăng nhập
-        children: [
-          { path: "/login", element: <LoginPage /> },
-          { path: "/register", element: <RegisterPage /> },
-        ],
-      },
+      { path: "/login", element: <LoginPage /> },
+      { path: "/register", element: <RegisterPage /> },
     ],
   },
 
-  // --- ADMIN ROUTES ---
+  // ==========================================
+  // 2. PUBLIC ROUTES (Dành cho khách vãng lai, có Header chung)
+  // ==========================================
   {
-    path: "/admin", // Đường dẫn gốc
+    path: "/",
+    element: <MainLayout />,
+    children: [
+      { index: true, element: <HomePage /> },
+      { path: "news", element: <div>Trang hiển thị news (Public)</div> },
+    ],
+  },
+
+  // ==========================================
+  // 3. ADMIN ROUTES (Giao diện full màn hình có Sidebar)
+  // ==========================================
+  {
+    path: "/admin",
     element: <RequireAuth allowedRoles={["Admin"]} />,
     children: [
       {
-        element: <AdminMainLayout />,
+        element: <AdminMainLayout />, // <-- Layout vỏ Admin
         children: [
           { index: true, element: <div>Trang dashboard của Admin</div> },
 
+          // --- TRANG CÁ NHÂN CỦA ADMIN ---
+          { path: "profile", element: <ProfilePage /> },
+          // { path: "profile/change-password", element: <ChangePasswordPage /> },
+
+          // --- QUẢN LÝ NHÂN VIÊN ---
           { path: "employees", element: <EmployeeListPage /> },
           { path: "employees/create", element: <EmployeeCreatePage /> },
           { path: "employees/update/:id", element: <EmployeeEditPage /> },
           { path: "employees/:id", element: <EmployeeDetailPage /> },
 
+          // --- QUẢN LÝ NỘI DUNG ---
           { path: "news", element: <div>Admin News List</div> },
           { path: "news/create", element: <div>Admin Create News</div> },
           { path: "news/update/:id", element: <div>Admin Update News</div> },
@@ -75,25 +90,26 @@ export const router = createBrowserRouter([
       },
     ],
   },
+
+  // ==========================================
+  // 4. EMPLOYEE ROUTES (Giao diện kẹp giữa: Header MainLayout + Sidebar ProfileLayout)
+  // ==========================================
   {
     path: "/employee",
-    element: <RequireAuth allowedRoles={["Employee", "Admin"]} />, // Admin cũng vào được để quản lý
+    element: <RequireAuth allowedRoles={["Employee", "Admin"]} />,
     children: [
       {
-        element: <MainLayout />,
+        element: <MainLayout />, // <-- Lớp vỏ thứ nhất: Header chung
         children: [
           { index: true, element: <div>Trang Dashboard Employee</div> },
+
+          // KHU VỰC CÁ NHÂN CỦA NHÂN VIÊN (Có menu dọc bên trái)
           {
-            element: <EmployeeProfileLayout />,
+            element: <EmployeeProfileLayout />, // <-- Lớp vỏ thứ hai: Menu doc
             children: [
-              {
-                path: "profile/:userId",
-                element: <div>Trang detailed profile của employee</div>,
-              }, // Dùng :userId để Admin xem được profile người khác
-              {
-                path: "profile/:userId/edit",
-                element: <div>Trang update profile của employee</div>,
-              },
+              // Bác thấy chưa? Cùng là <ProfilePage/> nhưng lại được nhét ở đây!
+              { path: "profile", element: <ProfilePage /> },
+              // { path: "profile/change-password", element: <ChangePasswordPage /> },
             ],
           },
         ],

@@ -13,3 +13,15 @@ export const UpdateProfileSchema = z.object({
 });
 
 export type UpdateProfileSchemaType = z.infer<typeof UpdateProfileSchema>;
+
+export const ChangePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Vui lòng nhập mật khẩu hiện tại"),
+    newPassword: z.string().min(6, "Mật khẩu mới phải từ 6 ký tự"),
+    confirmPassword: z.string().min(1, "Vui lòng xác nhận mật khẩu"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Mật khẩu xác nhận không khớp!",
+    path: ["confirmPassword"],
+  });
+export type ChangePasswordTypes = z.infer<typeof ChangePasswordSchema>;

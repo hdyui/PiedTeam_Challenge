@@ -50,15 +50,13 @@ export interface UserDetailResponse {
   updatedAt: string | null;
 }
 
-// Request Payload cho PUT /api/v1/users/{userId} (Update Profile)
-export interface UpdateUserPayload {
+export interface UpdateProfileRequest {
   firstName: string;
   lastName: string;
-  position: string;
-  phone: string;
-  address: string;
-  hobby: string;
-  quote: string;
-  avatarImg: string;
-  coverImg: string;
+  phone?: string | null;
+  address?: string | null;
+  hobby?: string | null;
+  quote?: string | null;
+  avatarImg?: string | null;
+  coverImg?: string | null;
 }
