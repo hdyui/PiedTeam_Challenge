@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { User, Settings, Key } from "lucide-react"; // Lấy icon cho đẹp giống Admin
+import { User, Settings } from "lucide-react"; // Lấy icon cho đẹp giống Admin
 
 const EmployeeProfileLayout = () => {
   return (
