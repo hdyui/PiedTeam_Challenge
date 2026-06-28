@@ -1,5 +1,10 @@
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css"; // Import css của theme snow
+"use client";
+
+import { useEffect } from "react";
+import { EditorContent, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import Placeholder from "@tiptap/extension-placeholder";
+import Link from "@tiptap/extension-link";
 
 interface RichTextEditorProps {
   value: string;
@@ -12,32 +17,36 @@ export const RichTextEditor = ({
   onChange,
   placeholder = "Nhập nội dung tại đây...",
 }: RichTextEditorProps) => {
-  // Cấu hình các thanh công cụ (Toolbar)
-  const modules = {
-    toolbar: [
-      [{ header: [1, 2, 3, false] }],
-      ["bold", "italic", "underline", "strike", "blockquote"],
-      [
-        { list: "ordered" },
-        { list: "bullet" },
-        { indent: "-1" },
-        { indent: "+1" },
-      ],
-      ["link", "image"],
-      ["clean"],
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Link.configure({ openOnClick: false, autolink: false }),
+      Placeholder.configure({ placeholder, showOnlyWhenEditable: true }),
     ],
-  };
+    content: value,
+    onUpdate: ({ editor }) => {
+      onChange(editor.getHTML());
+    },
+    editorProps: {
+      attributes: {
+        class:
+          "min-h-[18rem] px-4 py-3 focus:outline-none prose prose-sm text-slate-900",
+      },
+    },
+  });
+
+  useEffect(() => {
+    if (!editor) return;
+
+    const nextContent = value || "<p></p>";
+    if (nextContent !== editor.getHTML()) {
+      editor.commands.setContent(nextContent, { emitUpdate: false });
+    }
+  }, [editor, value]);
 
   return (
-    <div className="rich-text-container bg-white rounded-md">
-      <ReactQuill
-        theme="snow"
-        value={value}
-        onChange={onChange}
-        modules={modules}
-        placeholder={placeholder}
-        className="h-64 mb-12" // Chiều cao mặc định để không bị quá lùn
-      />
+    <div className="rich-text-container rounded-md border border-gray-200 bg-white">
+      <EditorContent editor={editor} />
     </div>
   );
 };

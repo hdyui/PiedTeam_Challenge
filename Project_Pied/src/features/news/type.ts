@@ -1,6 +1,14 @@
 // src/features/news/type.ts
 
+// API trả về status viết hoa: "Draft" | "Published" | "Archived"
+export type NewsStatusRaw = "Draft" | "Published" | "Archived";
+
+// Dùng nội bộ (lowercase) cho schema, badge, filter
 export type NewsStatus = "draft" | "published" | "archived";
+
+// Helper: normalize status từ API về lowercase
+export const normalizeStatus = (s: string): NewsStatus =>
+  s.toLowerCase() as NewsStatus;
 
 // ─── List item (từ GET /news) ───────────────────────────────────────────────
 export interface NewsListItem {
@@ -8,7 +16,7 @@ export interface NewsListItem {
   title: string;
   slug: string;
   coverImg: string | null;
-  status: NewsStatus;
+  status: NewsStatus; // đã được normalize sau khi nhận từ API
   author: {
     id: string;
     fullName: string;
@@ -60,12 +68,12 @@ export interface NewsQueryParams {
   sortOrder?: "asc" | "desc";
 }
 
-// ─── Pagination wrapper ───────────────────────────────────────────────────────
+// ─── Pagination wrapper - khớp với response thực tế của API ──────────────────
 export interface PaginationMeta {
-  page: number;
-  limit: number;
-  totalItems: number;
-  totalPages: number;
+  page: number; // mapped từ pageIndex
+  limit: number; // mapped từ pageSize
+  totalItems: number; // mapped từ totalCount
+  totalPages: number; // computed: Math.ceil(totalCount / pageSize)
 }
 
 export interface PaginatedResponse<T> {
@@ -73,7 +81,24 @@ export interface PaginatedResponse<T> {
   pagination: PaginationMeta;
 }
 
-// ─── API response shape ───────────────────────────────────────────────────────
+// ─── Raw API response shape (trực tiếp từ server) ────────────────────────────
+export interface RawApiListResponse<T> {
+  value: {
+    items: T[];
+    pageIndex: number;
+    pageSize: number;
+    totalCount: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
+  isSuccess: boolean;
+  isFailed: boolean;
+  error: string | null;
+  traceId: string;
+  timestampUtc: string;
+}
+
+// ─── Normalized API response (dùng trong app) ────────────────────────────────
 export interface ApiResponse<T> {
   statusCode: number;
   message: string;

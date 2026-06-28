@@ -26,13 +26,13 @@ export const NewsListPage = () => {
 
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
-  const [status, setStatus] = useState<NewsStatus | "">("");
+  const [status, setStatus] = useState<NewsStatus | "all">("all");
 
   const { data, isLoading } = useNewsList({
     page,
     limit: LIMIT,
     search: search || undefined,
-    status: status || undefined,
+    status: status === "all" ? undefined : status,
     sortBy: "createdAt",
     sortOrder: "desc",
   });
@@ -47,7 +47,7 @@ export const NewsListPage = () => {
   };
 
   const handleStatusChange = (val: string) => {
-    setStatus(val as NewsStatus | "");
+    setStatus(val as NewsStatus | "all");
     searchParams.set("page", "1");
     setSearchParams(searchParams);
   };
@@ -168,7 +168,7 @@ export const NewsListPage = () => {
             <SelectValue placeholder="Tất cả trạng thái" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Tất cả</SelectItem>
+            <SelectItem value="all">Tất cả</SelectItem>
             <SelectItem value="draft">Nháp</SelectItem>
             <SelectItem value="published">Đã xuất bản</SelectItem>
             <SelectItem value="archived">Lưu trữ</SelectItem>

@@ -20,6 +20,8 @@ import {
   NewsEditPage,
   NewsDetailPage,
 } from "@/features/news";
+import PublicNewsPage from "@/features/publicNews/pages/PublicNewsPage";
+import PublicNewsDetailPage from "@/features/publicNews/pages/PublicNewsDetailPage";
 
 export const router = createBrowserRouter([
   // --- PUBLIC & USER ROUTES ---
@@ -28,7 +30,8 @@ export const router = createBrowserRouter([
     element: <MainLayout />,
     children: [
       { index: true, element: <HomePage /> },
-      { path: "news", element: <NewsDetailPage /> },
+      { path: "news", element: <PublicNewsPage /> },
+      { path: "news/:slug", element: <PublicNewsDetailPage /> }, // ← thêm dòng này
       {
         element: <RequireUnAuth />,
         children: [

@@ -1,5 +1,24 @@
 // src/shared/layouts/MainLayout.tsx
 import { Link, Outlet, useLocation } from "react-router-dom";
+import { Button } from "../components/ui/button";
+import { Separator } from "@/shared/components/ui/separator";
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  navigationMenuTriggerStyle,
+} from "@/shared/components/ui/navigation-menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/shared/components/ui/sheet";
+import { Badge } from "@/shared/components/ui/badge";
+import { Menu } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
   { to: "/", label: "Trang chủ" },
@@ -7,96 +26,129 @@ const NAV_LINKS = [
   { to: "/recruitments", label: "Tuyển dụng" },
 ];
 
+const Logo = () => (
+  <Link to="/" className="flex items-center gap-2.5 shrink-0 group">
+    <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white text-sm font-bold shadow-sm group-hover:bg-blue-700 transition-colors">
+      V
+    </div>
+    <span className="font-semibold text-[15px] tracking-tight text-slate-800">
+      VNZ Company
+    </span>
+  </Link>
+);
+
 const MainLayout = () => {
   const { pathname } = useLocation();
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-slate-50">
       {/* ── Navbar ── */}
-      <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
-          {/* Logo */}
-          <Link
-            to="/"
-            className="flex items-center gap-2 font-semibold text-gray-900"
-          >
-            <div className="w-7 h-7 rounded-md bg-blue-600 flex items-center justify-center text-white text-xs font-bold">
-              V
-            </div>
-            VNZ Company
-          </Link>
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200 supports-[backdrop-filter]:bg-white/60">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between gap-6">
+          <Logo />
 
-          {/* Nav links */}
-          <nav className="hidden sm:flex items-center gap-6">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                className={`text-sm transition-colors ${
-                  pathname === link.to
-                    ? "text-blue-600 font-medium"
-                    : "text-gray-500 hover:text-gray-900"
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
+          {/* Desktop Nav */}
+          <NavigationMenu className="hidden sm:flex flex-1 justify-center">
+            <NavigationMenuList className="gap-1">
+              {NAV_LINKS.map((link) => (
+                <NavigationMenuItem key={link.to}>
+                  <NavigationMenuLink asChild>
+                    <Link
+                      to={link.to}
+                      className={cn(
+                        navigationMenuTriggerStyle(),
+                        "text-sm bg-transparent",
+                        pathname === link.to
+                          ? "bg-blue-50 text-blue-600 font-medium hover:bg-blue-50 hover:text-blue-600 focus:bg-blue-50"
+                          : "text-slate-500 hover:text-slate-800",
+                      )}
+                    >
+                      {link.label}
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              ))}
+            </NavigationMenuList>
+          </NavigationMenu>
 
-          {/* Login button */}
-          <Link
-            to="/login"
-            className="text-sm px-4 py-1.5 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
-          >
-            Đăng nhập
-          </Link>
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Desktop login */}
+            <Button
+              asChild
+              size="sm"
+              className="hidden sm:inline-flex bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+            >
+              <Link to="/login">Đăng nhập</Link>
+            </Button>
+
+            {/* Mobile hamburger */}
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="sm:hidden">
+                  <Menu className="h-5 w-5 text-slate-600" />
+                  <span className="sr-only">Mở menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-64 pt-8">
+                <SheetHeader className="mb-6">
+                  <SheetTitle asChild>
+                    <Logo />
+                  </SheetTitle>
+                </SheetHeader>
+                <nav className="flex flex-col gap-1">
+                  {NAV_LINKS.map((link) => (
+                    <Link
+                      key={link.to}
+                      to={link.to}
+                      className={cn(
+                        "text-sm px-3 py-2 rounded-md transition-colors",
+                        pathname === link.to
+                          ? "bg-blue-50 text-blue-600 font-medium"
+                          : "text-slate-500 hover:text-slate-800 hover:bg-slate-100",
+                      )}
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </nav>
+                <Separator className="my-4" />
+                <Button
+                  asChild
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <Link to="/login">Đăng nhập</Link>
+                </Button>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </header>
 
-      {/* ── Body: Sidebar + Content ── */}
-      <div className="flex flex-1 max-w-6xl w-full mx-auto px-4 py-6 gap-6">
-        {/* Sidebar */}
-        <aside className="hidden lg:block w-52 shrink-0">
-          <div className="bg-white border border-gray-200 rounded-lg p-4 space-y-1">
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
-              Danh mục
-            </p>
+      {/* ── Body ── */}
+      <main className="flex-1 max-w-6xl w-full mx-auto px-6 py-8">
+        <Outlet />
+      </main>
+
+      {/* ── Footer ── */}
+      <footer className="border-t border-slate-200 bg-white">
+        <div className="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-2 text-[13px] text-slate-400">
+            <div className="w-5 h-5 rounded bg-blue-600 flex items-center justify-center text-white text-[10px] font-bold">
+              V
+            </div>
+            <span>© 2026 VNZ Company. All rights reserved.</span>
+          </div>
+
+          <div className="flex items-center gap-3">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
-                className={`block text-sm px-3 py-2 rounded-md transition-colors ${
-                  pathname === link.to
-                    ? "bg-blue-50 text-blue-600 font-medium"
-                    : "text-gray-600 hover:bg-gray-50"
-                }`}
+                className="text-[13px] text-slate-400 hover:text-slate-600 transition-colors"
               >
                 {link.label}
               </Link>
             ))}
-          </div>
-        </aside>
-
-        {/* Main content */}
-        <main className="flex-1 min-w-0">
-          <Outlet />
-        </main>
-      </div>
-
-      {/* ── Footer ── */}
-      <footer className="border-t border-gray-200 bg-white">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-gray-400">
-          <span>© 2026 VNZ Company. All rights reserved.</span>
-          <div className="flex gap-4">
-            <Link to="/news" className="hover:text-gray-600">
-              Tin tức
-            </Link>
-            <Link to="/recruitments" className="hover:text-gray-600">
-              Tuyển dụng
-            </Link>
-            <Link to="/login" className="hover:text-gray-600">
-              Đăng nhập
-            </Link>
           </div>
         </div>
       </footer>
