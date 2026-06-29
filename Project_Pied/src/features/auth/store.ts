@@ -25,7 +25,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
         clearAuth: () => set({ accessToken: null, role: null }),
       }),
       {
-        name: "company-cms-auth", // name of the item in the storage (must be unique)
+        name: "VNZ_Challenge", // name of the item in the storage (must be unique)
         storage: createJSONStorage(() => localStorage), // (optional) by default, 'localStorage' is used
       },
     ),

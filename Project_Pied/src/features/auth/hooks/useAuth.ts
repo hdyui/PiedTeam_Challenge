@@ -10,7 +10,6 @@ import type {
   ChangePasswordRequest,
   JwtPayload,
   LoginRequest,
-  UpdateProfileRequest,
 } from "../type";
 
 export const useRegisterMutation = () => {
@@ -111,7 +110,6 @@ export const useLogoutMutation = () => {
       // queryClient.invalidateQueries({ queryKey: ["rituals"] });
 
       toast.success("Đăng xuất thành công");
-
       navigate("/login");
     },
 

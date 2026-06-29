@@ -7,47 +7,50 @@ import MainLayout from "@/shared/layouts/MainLayout";
 import AdminMainLayout from "@/shared/layouts/AdminMainLayout";
 import EmployeeProfileLayout from "@/features/employees/components/layout/EmployeeProfileLayout";
 
-// --- PUBLIC & AUTH ---
 import { HomePage } from "@/features/auth/pages/HomePage";
 import { LoginPage } from "@/features/auth/pages/LoginPage";
 import { RegisterPage } from "@/features/auth/pages/RegisterPage";
 
 // --- ADMIN & EMPLOYEE (QUẢN LÝ) ---
-import EmployeeListPage from "@/features/employees/pages/EmployeeListPage";
-import EmployeeCreatePage from "@/features/employees/pages/EmployeeCreatePage";
-import EmployeeDetailPage from "@/features/employees/pages/EmployeeDetailPage";
-import EmployeeEditPage from "@/features/employees/pages/EmployeeEditPage";
-import { ProfilePage } from "@/features/employees/pages/EmployeeProfilePage";
 
-// IMPORT CÁI TRANG PROFILE DÙNG CHUNG Ở ĐÂY (Bác nhớ check lại đường dẫn import cho chuẩn)
+import { ProfilePage } from "@/features/employees/pages/AccountProfilePage";
+
+// ─── News ────────────────────────────────────────────────────────────────────
+import {
+  NewsListPage,
+  NewsCreatePage,
+  NewsEditPage,
+  NewsDetailPage,
+} from "@/features/news";
+import PublicNewsPage from "@/features/publicNews/pages/PublicNewsPage";
+import PublicNewsDetailPage from "@/features/publicNews/pages/PublicNewsDetailPage";
+import { AdminDashboardPage } from "@/features/dashBoard";
+import { AccountListPage } from "@/features/employees/pages/AccountListPage";
+import { AccountCreatePage } from "@/features/employees/pages/AccountCreatePage";
+import { AccountEditPage } from "@/features/employees/pages/AccountEditPage";
+import AccountDetailPage from "@/features/employees/pages/AccountDetailPage";
 
 export const router = createBrowserRouter([
   // ==========================================
   // 1. AUTH ROUTES (Đứng độc lập, không bọc Layout nào để màn hình login trắng tinh)
   // ==========================================
   {
-    element: <RequireUnAuth />,
-    children: [
-      { path: "/login", element: <LoginPage /> },
-      { path: "/register", element: <RegisterPage /> },
-    ],
-  },
-
-  // ==========================================
-  // 2. PUBLIC ROUTES (Dành cho khách vãng lai, có Header chung)
-  // ==========================================
-  {
     path: "/",
     element: <MainLayout />,
     children: [
       { index: true, element: <HomePage /> },
-      { path: "news", element: <div>Trang hiển thị news (Public)</div> },
+      { path: "news", element: <PublicNewsPage /> },
+      { path: "news/:slug", element: <PublicNewsDetailPage /> }, // ← thêm dòng này
+      {
+        element: <RequireUnAuth />,
+        children: [
+          { path: "login", element: <LoginPage /> },
+          { path: "register", element: <RegisterPage /> },
+        ],
+      },
     ],
   },
 
-  // ==========================================
-  // 3. ADMIN ROUTES (Giao diện full màn hình có Sidebar)
-  // ==========================================
   {
     path: "/admin",
     element: <RequireAuth allowedRoles={["Admin"]} />,
@@ -55,24 +58,26 @@ export const router = createBrowserRouter([
       {
         element: <AdminMainLayout />, // <-- Layout vỏ Admin
         children: [
-          { index: true, element: <div>Trang dashboard của Admin</div> },
+          { index: true, element: <AdminDashboardPage /> },
 
           // --- TRANG CÁ NHÂN CỦA ADMIN ---
           { path: "profile", element: <ProfilePage /> },
           // { path: "profile/change-password", element: <ChangePasswordPage /> },
 
           // --- QUẢN LÝ NHÂN VIÊN ---
-          { path: "employees", element: <EmployeeListPage /> },
-          { path: "employees/create", element: <EmployeeCreatePage /> },
-          { path: "employees/update/:id", element: <EmployeeEditPage /> },
-          { path: "employees/:id", element: <EmployeeDetailPage /> },
+          // Employees
+          { path: "accounts", element: <AccountListPage /> },
+          { path: "accounts/create", element: <AccountCreatePage /> },
+          { path: "accounts/update/:id", element: <AccountEditPage /> },
+          { path: "accounts/:id", element: <AccountDetailPage /> },
 
-          // --- QUẢN LÝ NỘI DUNG ---
-          { path: "news", element: <div>Admin News List</div> },
-          { path: "news/create", element: <div>Admin Create News</div> },
-          { path: "news/update/:id", element: <div>Admin Update News</div> },
-          { path: "news/:id", element: <div>Admin Detail News</div> },
+          // News
+          { path: "news", element: <NewsListPage /> },
+          { path: "news/create", element: <NewsCreatePage /> },
+          { path: "news/update/:id", element: <NewsEditPage /> },
+          { path: "news/:id", element: <NewsDetailPage /> },
 
+          // Recruitments (chưa implement)
           { path: "recruitments", element: <div>Admin Recruitments List</div> },
           {
             path: "recruitments/create",

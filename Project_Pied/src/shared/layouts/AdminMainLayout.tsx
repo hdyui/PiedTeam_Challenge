@@ -15,11 +15,20 @@ import {
 import { useLogoutMutation, useUser } from "@/features/auth/hooks/useAuth";
 
 const navItems = [
-  { to: "/admin", label: "Dashboard", icon: Home }, // Bác nhớ check lại route này cho đúng nhé
-  { to: "/admin/employees", label: "Employees", icon: Users },
-  { to: "/admin/news", label: "News", icon: Newspaper },
-  { to: "/admin/recruitments", label: "Recruiting", icon: Briefcase },
-  { to: "/admin/profile", label: "My Profile", icon: User },
+  { to: "/admin", label: "Dashboard", icon: Home, end: true },
+  {
+    to: "/admin/accounts",
+    label: "Employee Accounts",
+    icon: Users,
+    end: false,
+  },
+  { to: "/admin/news", label: "News", icon: Newspaper, end: false },
+  {
+    to: "/admin/recruiments",
+    label: "Recruiting",
+    icon: Briefcase,
+    end: false,
+  },
 ];
 
 const AdminMainLayout = () => {
@@ -61,7 +70,7 @@ const AdminMainLayout = () => {
   return (
     <div className="min-h-screen flex bg-gray-50 text-gray-800">
       {/* Sidebar */}
-      <aside className="hidden md:flex flex-col w-64 bg-white border-r">
+      <aside className="hidden md:flex flex-col w-64 bg-white border-r h-screen sticky top-0">
         <div className="h-16 flex items-center px-6 border-b">
           <NavLink to="/admin" className="flex items-center gap-3">
             <div className="w-8 h-8 bg-primary rounded flex items-center justify-center text-white font-bold">
@@ -78,7 +87,7 @@ const AdminMainLayout = () => {
               <NavLink
                 to={item.to}
                 key={item.to}
-                end={item.to === "/admin"} // Đảm bảo trang chủ admin ko bị active sai
+                end={item.end}
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-2 rounded-md hover:bg-gray-100 ${
                     isActive ? "bg-primary/10 font-medium text-primary" : ""
@@ -92,8 +101,7 @@ const AdminMainLayout = () => {
           })}
         </nav>
 
-        {/* THÔNG TIN USER GÓC DƯỚI SIDEBAR */}
-        <div className="px-4 py-4 border-t">
+        <div className="px-4 py-4 border-t border-r">
           {token ? (
             <div className="flex items-center justify-between">
               <Link
@@ -156,7 +164,11 @@ const AdminMainLayout = () => {
                   <div className="hidden sm:block text-sm text-gray-800 font-medium">
                     {isLoading ? "Loading..." : fullName || "Admin"}
                   </div>
-                  <Button variant="ghost" onClick={handleLogout}>
+                  <Button
+                    variant="outline"
+                    onClick={handleLogout}
+                    className="border-red-200 text-red-500 hover:bg-red-50 hover:text-red-600"
+                  >
                     Logout
                   </Button>
                 </div>
