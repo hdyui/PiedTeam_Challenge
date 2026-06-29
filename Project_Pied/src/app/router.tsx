@@ -17,6 +17,9 @@ import EmployeeListPage from "@/features/employees/pages/EmployeeListPage";
 import EmployeeCreatePage from "@/features/employees/pages/EmployeeCreatePage";
 import EmployeeDetailPage from "@/features/employees/pages/EmployeeDetailPage";
 import EmployeeEditPage from "@/features/employees/pages/EmployeeEditPage";
+import { ProfilePage } from "@/features/employees/pages/EmployeeProfilePage";
+
+// IMPORT CÁI TRANG PROFILE DÙNG CHUNG Ở ĐÂY (Bác nhớ check lại đường dẫn import cho chuẩn)
 
 export const router = createBrowserRouter([
   // ==========================================
@@ -55,7 +58,7 @@ export const router = createBrowserRouter([
           { index: true, element: <div>Trang dashboard của Admin</div> },
 
           // --- TRANG CÁ NHÂN CỦA ADMIN ---
-          { path: "profile", element: <EmployeeProfileLayout /> },
+          { path: "profile", element: <ProfilePage /> },
           // { path: "profile/change-password", element: <ChangePasswordPage /> },
 
           // --- QUẢN LÝ NHÂN VIÊN ---
@@ -96,6 +99,7 @@ export const router = createBrowserRouter([
     element: <RequireAuth allowedRoles={["Employee", "Admin"]} />,
     children: [
       {
+        // element: <MainLayout />, // <-- Lớp vỏ thứ nhất: Header chung
         element: <EmployeeProfileLayout />, // Tạm dùng MainLayout, nếu có EmployeeLayout riêng thì thay vào
         children: [
           { index: true, element: <div>Trang Dashboard Employee</div> },
@@ -105,7 +109,7 @@ export const router = createBrowserRouter([
             element: <EmployeeProfileLayout />, // <-- Lớp vỏ thứ hai: Menu doc
             children: [
               // Bác thấy chưa? Cùng là <ProfilePage/> nhưng lại được nhét ở đây!
-              { path: "profile", element: <EmployeeProfileLayout /> },
+              { path: "profile", element: <ProfilePage /> },
               // { path: "profile/change-password", element: <ChangePasswordPage /> },
             ],
           },
