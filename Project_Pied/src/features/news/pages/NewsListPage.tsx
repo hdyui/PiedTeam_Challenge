@@ -189,23 +189,21 @@ export const NewsListPage = () => {
         </div>
 
         <div className="flex items-center justify-between gap-3 rounded-2xl border border-gray-200 bg-slate-50 p-3 shadow-sm">
-          <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
+          <div className="flex shrink-0 items-center gap-2 text-sm font-medium text-gray-600">
             <SlidersHorizontal className="size-4 text-gray-500" />
             Trạng thái
           </div>
-          <div className="w-full sm:w-auto">
-            <Select value={status} onValueChange={handleStatusChange}>
-              <SelectTrigger className="h-11 w-full rounded-xl border-gray-200 bg-white shadow-sm">
-                <SelectValue placeholder="Tất cả trạng thái" />
-              </SelectTrigger>
-              <SelectContent align="start">
-                <SelectItem value="all">Tất cả</SelectItem>
-                <SelectItem value="draft">Nháp</SelectItem>
-                <SelectItem value="published">Đã xuất bản</SelectItem>
-                <SelectItem value="archived">Lưu trữ</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <Select value={status} onValueChange={handleStatusChange}>
+            <SelectTrigger className="h-11 w-[140px] rounded-xl border-gray-200 bg-white shadow-sm">
+              <SelectValue placeholder="Tất cả trạng thái" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tất cả</SelectItem>
+              <SelectItem value="draft">Nháp</SelectItem>
+              <SelectItem value="published">Đã xuất bản</SelectItem>
+              <SelectItem value="archived">Lưu trữ</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
