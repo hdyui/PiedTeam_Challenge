@@ -76,11 +76,6 @@ export interface PaginationMeta {
   totalPages: number; // computed: Math.ceil(totalCount / pageSize)
 }
 
-export interface PaginatedResponse<T> {
-  items: T[];
-  pagination: PaginationMeta;
-}
-
 // ─── Raw API response shape (trực tiếp từ server) ────────────────────────────
 export interface RawApiListResponse<T> {
   value: {
@@ -96,11 +91,4 @@ export interface RawApiListResponse<T> {
   error: string | null;
   traceId: string;
   timestampUtc: string;
-}
-
-// ─── Normalized API response (dùng trong app) ────────────────────────────────
-export interface ApiResponse<T> {
-  statusCode: number;
-  message: string;
-  data: T;
 }

@@ -23,6 +23,10 @@ import {
 import PublicNewsPage from "@/features/publicNews/pages/PublicNewsPage";
 import PublicNewsDetailPage from "@/features/publicNews/pages/PublicNewsDetailPage";
 import { AdminDashboardPage } from "@/features/dashBoard";
+import RecruitmentPage from "@/features/recruiments/pages/RecruitmentPage";
+import RecruitmentCreatePage from "@/features/recruiments/pages/RecruitmentCreatePage";
+import RecruitmentUpdatePage from "@/features/recruiments/pages/RecruitmentUpdatePage";
+import RecruitmentDetailsPPage from "@/features/recruiments/pages/RecruitmentDetails";
 
 export const router = createBrowserRouter([
   // --- PUBLIC & USER ROUTES ---
@@ -66,18 +70,18 @@ export const router = createBrowserRouter([
           { path: "news/:id", element: <NewsDetailPage /> },
 
           // Recruitments (chưa implement)
-          { path: "recruitments", element: <div>Admin Recruitments List</div> },
+          { path: "recruitments", element: <RecruitmentPage /> },
           {
             path: "recruitments/create",
-            element: <div>Admin Create Recruitment</div>,
+            element: <RecruitmentCreatePage />,
           },
           {
             path: "recruitments/update/:id",
-            element: <div>Admin Update Recruitment</div>,
+            element: <RecruitmentUpdatePage />,
           },
           {
             path: "recruitments/:id",
-            element: <div>Admin Detail Recruitment</div>,
+            element: <RecruitmentDetailsPPage />,
           },
         ],
       },

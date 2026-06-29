@@ -16,7 +16,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/shared/components/ui/sheet";
-import { Badge } from "@/shared/components/ui/badge";
 import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 

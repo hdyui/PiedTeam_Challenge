@@ -18,7 +18,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
-import { useDashboard } from "../hooks/useDashBoard";
+import { useDashboard } from "../hooks/useDashboard";
 import { StatCard } from "../components/StatCard";
 import { RecentNewsList } from "../components/RecentNewsList";
 
@@ -54,7 +54,7 @@ export const AdminDashboardPage = () => {
       {/* ── Header ──────────────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{greeting} 👋</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{greeting}</h1>
           <p className="text-sm text-gray-500 mt-1">
             Đây là tổng quan hệ thống hôm nay —{" "}
             {new Date().toLocaleDateString("vi-VN", {
@@ -213,7 +213,7 @@ export const AdminDashboardPage = () => {
               </span>
             </div>
           </Link>
-          <Link to="/employees">
+          <Link to="/admin/employees">
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 flex items-center gap-3 hover:border-purple-300 hover:shadow-md transition-all cursor-pointer group">
               <div className="w-9 h-9 rounded-lg bg-purple-50 flex items-center justify-center group-hover:bg-purple-100 transition-colors">
                 <Users className="w-4 h-4 text-purple-500" />

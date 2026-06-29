@@ -1,26 +1,3 @@
-// ─── Shared ──────────────────────────────────────────────────────────────────
-export interface PaginationMeta {
-  page: number;
-  totalPages: number;
-}
-
-export interface PaginatedResponse<T> {
-  items: T[];
-  pageIndex: number;
-  pageSize: number;
-  totalCount: number;
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
-}
-
-export interface ApiResponse<T> {
-  value: T;
-  isSuccess: boolean;
-  isFailed: boolean;
-  error: string | null;
-  traceId: string;
-}
-
 // ─── News ─────────────────────────────────────────────────────────────────────
 export interface PublicNewsItem {
   id: string;
@@ -44,9 +21,9 @@ export interface PublicNewsQueryParams {
   limit?: number;
   search?: string;
 }
-
 // ─── Recruitments ─────────────────────────────────────────────────────────────
 export type RecruitmentLevel =
+  | "all"
   | "Intern"
   | "Fresher"
   | "Junior"
@@ -75,5 +52,5 @@ export interface PublicRecruitmentQueryParams {
   page?: number;
   limit?: number;
   search?: string;
-  level?: RecruitmentLevel | "";
+  level?: RecruitmentLevel | "" | "all";
 }
