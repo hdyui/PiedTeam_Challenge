@@ -27,6 +27,8 @@ import RecruitmentPage from "@/features/recruiments/pages/RecruitmentPage";
 import RecruitmentCreatePage from "@/features/recruiments/pages/RecruitmentCreatePage";
 import RecruitmentUpdatePage from "@/features/recruiments/pages/RecruitmentUpdatePage";
 import RecruitmentDetailsPPage from "@/features/recruiments/pages/RecruitmentDetails";
+import PublicRecruitmentPage from "@/features/recruiments/pages/PublicRecruitmentPage";
+import PublicRecruitmentDetailPage from "@/features/recruiments/pages/PublicRecruitmentDetailsPage";
 
 export const router = createBrowserRouter([
   // --- PUBLIC & USER ROUTES ---
@@ -36,7 +38,9 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
       { path: "news", element: <PublicNewsPage /> },
-      { path: "news/:slug", element: <PublicNewsDetailPage /> }, // ← thêm dòng này
+      { path: "news/:slug", element: <PublicNewsDetailPage /> },
+      { path: "recruitments", element: <PublicRecruitmentPage /> },
+      { path: "recruitments/:id", element: <PublicRecruitmentDetailPage /> },
       {
         element: <RequireUnAuth />,
         children: [

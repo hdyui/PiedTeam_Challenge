@@ -269,7 +269,9 @@ const RecruitmentPage = () => {
                               variant="ghost"
                               className="h-8 text-xs text-gray-600 hover:text-indigo-600 hover:bg-indigo-50"
                               onClick={() =>
-                                navigate(`/admin/recruitment/${item.id}/edit`)
+                                navigate(
+                                  `/admin/recruitments/update/${item.id}`,
+                                )
                               }
                             >
                               Edit

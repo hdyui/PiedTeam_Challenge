@@ -167,7 +167,7 @@ const RecruitmentUpdatePage = () => {
     try {
       // deleteRecruitment(id);
       await new Promise((res) => setTimeout(res, 600)); // placeholder
-      navigate("/admin/recruitment");
+      navigate("/admin/recruitments");
     } finally {
       setIsDeleting(false);
     }
