@@ -5,7 +5,12 @@ import { authApi } from "../services";
 import { useAuthStore } from "../store";
 import { queryClient } from "@/lib/queryClient";
 import { jwtDecode } from "jwt-decode";
-import type { AuthResponse, JwtPayload, LoginRequest } from "../type";
+import type {
+  AuthResponse,
+  ChangePasswordRequest,
+  JwtPayload,
+  LoginRequest,
+} from "../type";
 
 export const useRegisterMutation = () => {
   const navigate = useNavigate();
@@ -59,6 +64,7 @@ export const useLoginMutation = () => {
       console.log(decoded.Role);
       if (decoded.Role === "Admin") {
         navigate("/admin", { replace: true });
+        console.log(decoded.Role);
         if (decoded.Role === "Admin") {
           navigate("/admin", { replace: true });
         } else {
@@ -68,6 +74,25 @@ export const useLoginMutation = () => {
     },
   });
 };
+export const useChangePasswordMutation = () => {
+  return useMutation({
+    mutationFn: (data: ChangePasswordRequest) => {
+      return authApi.changePassword(data);
+    },
+    onSuccess: (res) => {
+      toast.success(res.message || "Đổi mật khẩu thành công!");
+    },
+    onError: (error: any) => {
+      const errorMsg =
+        error.response?.data?.errors?.[0]?.message ||
+        error.response?.data?.message ||
+        "Đổi mật khẩu thất bại, vui lòng kiểm tra lại!";
+      toast.error(errorMsg);
+      console.log("Lỗi đổi pass:", error.response?.data);
+    },
+  });
+};
+
 export const useLogoutMutation = () => {
   const navigate = useNavigate();
   const clearTokens = useAuthStore((state) => state.clearAuth);
