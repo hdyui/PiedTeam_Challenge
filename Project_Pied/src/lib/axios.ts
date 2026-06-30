@@ -9,9 +9,6 @@ import { toast } from "sonner";
 // Create instance
 const apiClient = axios.create({
   baseURL: env.API_URL, // Nhớ config .env, config biến môi trường
-  headers: {
-    "Content-Type": "application/json",
-  },
   // timeout: 15_000, // 15s timeout
   withCredentials: true, // gửi - nhận cookie nếu có (dùng cho auth)
 });
@@ -19,6 +16,16 @@ const apiClient = axios.create({
 //Request Interceptor: Attach Token: tự động thêm token vào header Authorization nếu có
 apiClient.interceptors.request.use(
   (config) => {
+    if (config.data instanceof FormData) {
+      const headers = config.headers as any;
+      if (typeof headers.delete === "function") {
+        headers.delete("Content-Type");
+      } else {
+        delete headers["Content-Type"];
+        delete headers["content-type"];
+      }
+    }
+
     const accessToken = useAuthStore.getState().accessToken; // lấy token từ auth store
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;

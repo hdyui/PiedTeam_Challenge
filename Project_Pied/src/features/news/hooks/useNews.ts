@@ -100,6 +100,21 @@ export const useUploadNewsImages = (newsId: string) => {
   });
 };
 
+// ─── PUT /news/:newsId/images/:imageId (cập nhật ảnh) ───────────────────────
+export const useUpdateNewsImage = (newsId: string) => {
+  return useMutation({
+    mutationFn: ({ imageId, file }: { imageId: string; file: File }) =>
+      newsApi.updateImage(newsId, imageId, file),
+    onSuccess: () => {
+      toast.success("Cập nhật ảnh thành công");
+      queryClient.invalidateQueries({ queryKey: newsKeys.detail(newsId) });
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Cập nhật ảnh thất bại");
+    },
+  });
+};
+
 // ─── DELETE /news/:newsId/images/:imageId ─────────────────────────────────────
 export const useDeleteNewsImage = (newsId: string) => {
   return useMutation({
