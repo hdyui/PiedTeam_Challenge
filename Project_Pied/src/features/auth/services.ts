@@ -1,6 +1,10 @@
 import apiClient from "@/lib/axios";
-import type { AuthResponse, UserDto, UserProfile } from "./type";
-import type { UserRole } from "@/shared/types";
+import type {
+  AuthResponse,
+  ChangePasswordRequest,
+  CurrentUserResponse,
+  UserDto,
+} from "./type";
 
 // authApi chứa các hàm gọi API lquan đến authentication như login, register, getMe,...
 // mỗi hàm sẽ gọi apiClient để thực hiện request, sau đó normalize dữ liệu
@@ -30,11 +34,18 @@ export const authApi = {
     // FE nhận: { accessToken, refreshToken }
   },
 
-  async logout(): Promise<void> {
-    await apiClient.post("/auth/logout");
+  async getMe(): Promise<CurrentUserResponse> {
+    return apiClient.get("/auth/me") as unknown as Promise<CurrentUserResponse>;
   },
 
-  async getMe(): Promise<UserProfile> {
-    return apiClient.get("/user/me") as unknown as Promise<UserProfile>;
+  async changePassword(data: ChangePasswordRequest): Promise<any> {
+    return apiClient.put(
+      "/auth/change-password",
+      data, // 2. TRUYỀN DATA VÀO apiClient.put ĐỂ GỬI LÊN SERVER
+    );
+  },
+
+  async logout(): Promise<void> {
+    await apiClient.post("/auth/logout");
   },
 };

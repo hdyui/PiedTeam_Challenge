@@ -1,17 +1,17 @@
 import { useAuthStore } from "@/features/auth/store";
+import type { UserRole } from "@/shared/types";
 import { Navigate, Outlet } from "react-router-dom";
 
 const RequireUnAuth = () => {
   const isAuthed = useAuthStore((state) => !!state.accessToken);
-  const role = useAuthStore((state) => state.role);
-  // const token = localStorage.getItem("accessToken");
+  const role = useAuthStore((state) => state.role) as UserRole | null;
 
-  if (isAuthed && role == "user") {
-    // 1. Có token -> Đá về /home
-    return <Navigate to="/settings" replace />;
+  if (isAuthed) {
+    if (role === "Admin") return <Navigate to="/admin" replace />;
+    if (role === "Employee") return <Navigate to="/employee" replace />;
+    return <Navigate to="/" replace />;
   }
 
-  // 3. Không có token -> Cho đi tiếp vào các tầng bên trong
   return <Outlet />;
 };
 

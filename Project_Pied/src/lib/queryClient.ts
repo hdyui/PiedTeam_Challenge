@@ -6,7 +6,7 @@ export const queryClient = new QueryClient({
       // 🎛️ Config mặc định cho TẤT CẢ queries
 
       // 1. Refetch on Window Focus
-      refetchOnWindowFocus: false,
+      refetchOnWindowFocus: "always",
       // điều kiện fetch
       // -> 1. có component dùng data đó
       // -> 2. dữ liệu cũ ( ở tab đó thì vẫn re-fetch )
@@ -22,7 +22,7 @@ export const queryClient = new QueryClient({
       // 💡 Production: 2-3 là hợp lý (network chập chờn)
 
       // 3. Stale Time
-      staleTime: 100000,
+      staleTime: 10000,
       // ⚠️ Mặc định: 0 (data ngay lập tức "cũ")
       // 💡 Production: 30s - 5 phút tùy data
       // cơ chế Pooling dùng để ứng dụng chuyển khoản ( fetch liên tục bắt thay đổi số dư )
@@ -32,5 +32,7 @@ export const queryClient = new QueryClient({
       // ⚠️ Mặc định: 5 phút
       // 💡 Cache tồn tại 5 phút kể từ khi không còn component nào dùng
     },
+
+    //
   },
 });
