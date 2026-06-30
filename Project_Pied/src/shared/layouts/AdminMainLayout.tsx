@@ -6,6 +6,7 @@ import {
   Users,
   Newspaper,
   Briefcase,
+  Building2,
   Bell,
   LogOut,
   Menu,
@@ -22,9 +23,15 @@ const navItems = [
     icon: Users,
     end: false,
   },
+  {
+    to: "/admin/departments", // <-- Thêm menu Departments vào đây
+    label: "Departments",
+    icon: Building2,
+    end: false,
+  },
   { to: "/admin/news", label: "News", icon: Newspaper, end: false },
   {
-    to: "/admin/recruiments",
+    to: "/admin/recruitments",
     label: "Recruiting",
     icon: Briefcase,
     end: false,

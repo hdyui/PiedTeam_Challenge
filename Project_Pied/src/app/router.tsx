@@ -29,6 +29,10 @@ import { AccountListPage } from "@/features/employees/pages/AccountListPage";
 import { AccountCreatePage } from "@/features/employees/pages/AccountCreatePage";
 import { AccountEditPage } from "@/features/employees/pages/AccountEditPage";
 import AccountDetailPage from "@/features/employees/pages/AccountDetailPage";
+import { DepartmentListPage } from "@/features/departments/pages/DepartmentListPage";
+import { DepartmentCreatePage } from "@/features/departments/pages/DepartmentCreatePage";
+import { DepartmentEditPage } from "@/features/departments/pages/DepartmentEditPage";
+import { DepartmentDetailPage } from "@/features/departments/pages/DepartmentDetailPage";
 
 export const router = createBrowserRouter([
   // ==========================================
@@ -70,6 +74,12 @@ export const router = createBrowserRouter([
           { path: "accounts/create", element: <AccountCreatePage /> },
           { path: "accounts/update/:id", element: <AccountEditPage /> },
           { path: "accounts/:id", element: <AccountDetailPage /> },
+
+          // Departments (Thêm cục này vào)
+          { path: "departments", element: <DepartmentListPage /> },
+          { path: "departments/create", element: <DepartmentCreatePage /> },
+          { path: "departments/update/:id", element: <DepartmentEditPage /> },
+          { path: "departments/:id", element: <DepartmentDetailPage /> },
 
           // News
           { path: "news", element: <NewsListPage /> },

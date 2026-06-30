@@ -1,5 +1,5 @@
 // src/features/departments/services.ts
-import { apiClient } from "@/shared/api/client";
+import apiClient from "@/lib/axios";
 import type { DepartmentFormValues, AddMemberFormValues } from "./schema";
 
 export const departmentApi = {

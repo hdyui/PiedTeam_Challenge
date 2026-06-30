@@ -6,7 +6,7 @@ export const DepartmentFormSchema = z.object({
   name: z.string().min(1, "Vui lòng nhập tên phòng ban"),
   departmentCode: z.string().min(1, "Vui lòng nhập mã phòng ban (VD: ENG)"),
   description: z.string().optional(),
-  isActive: z.boolean().default(true),
+  isActive: z.boolean(),
 });
 
 export type DepartmentFormValues = z.infer<typeof DepartmentFormSchema>;
