@@ -26,7 +26,7 @@ export const NewsStatusBadge = ({ status }: NewsStatusBadgeProps) => {
   const config = STATUS_CONFIG[key] ?? STATUS_CONFIG.draft;
   return (
     <span
-      className={`px-2 py-1 text-xs font-semibold rounded-full ${config.className}`}
+      className={`w-22 inline-flex justify-center px-2 py-1 text-xs font-semibold rounded-full ${config.className}`}
     >
       {config.label}
     </span>

@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { usePublicRecruitmentDetail } from "../hooks/useRecruitment";
+import {
+  useDeleteRecruitment,
+  usePublicRecruitmentDetail,
+  useUpdateRecruitment,
+} from "../hooks/useRecruitment";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
@@ -39,10 +43,7 @@ import {
   Save,
   Trash2,
 } from "lucide-react";
-import type { RecruitmentLevel } from "../type";
-
-// Plug in your actual mutation hooks:
-// import { useUpdateRecruitment, useDeleteRecruitment } from "../hooks/useRecruitment";
+import type { RecruitmentLevel, RecruitmentStatus } from "../type";
 
 const LEVEL_OPTIONS: RecruitmentLevel[] = [
   "Intern",
@@ -52,10 +53,17 @@ const LEVEL_OPTIONS: RecruitmentLevel[] = [
   "Senior",
 ];
 
+const STATUS_OPTIONS: { label: string; value: RecruitmentStatus }[] = [
+  { label: "Đang mở (Open)", value: "Open" },
+  { label: "Bản nháp (Draft)", value: "Draft" },
+  { label: "Đã đóng (Closed)", value: "Closed" },
+];
+
 interface FormState {
   title: string;
   department: string;
   level: RecruitmentLevel | "";
+  status: RecruitmentStatus | "";
   jobDescription: string;
   referenceInfo: string;
 }
@@ -64,11 +72,12 @@ type FieldError = Partial<Record<keyof FormState, string>>;
 
 const validate = (form: FormState): FieldError => {
   const errors: FieldError = {};
-  if (!form.title.trim()) errors.title = "Title is required.";
-  if (!form.department.trim()) errors.department = "Department is required.";
-  if (!form.level) errors.level = "Level is required.";
+  if (!form.title.trim()) errors.title = "Tiêu đề là bắt buộc.";
+  if (!form.department.trim()) errors.department = "Phòng ban là bắt buộc.";
+  if (!form.level) errors.level = "Cấp bậc là bắt buộc.";
+  if (!form.status) errors.status = "Trạng thái là bắt buộc.";
   if (!form.jobDescription.trim())
-    errors.jobDescription = "Job description is required.";
+    errors.jobDescription = "Mô tả công việc là bắt buộc.";
   return errors;
 };
 
@@ -110,16 +119,21 @@ const RecruitmentUpdatePage = () => {
   const { data, isLoading } = usePublicRecruitmentDetail(id ?? "");
   const detail = data?.value;
 
+  const { mutate: updateRecruitment, isPending: isSubmitting } =
+    useUpdateRecruitment();
+  const { mutate: deleteRecruitment, isPending: isDeleting } =
+    useDeleteRecruitment();
+
   const [form, setForm] = useState<FormState>({
     title: "",
     department: "",
     level: "",
+    status: "",
     jobDescription: "",
     referenceInfo: "",
   });
   const [errors, setErrors] = useState<FieldError>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Populate form once detail loads
   useEffect(() => {
@@ -132,6 +146,7 @@ const RecruitmentUpdatePage = () => {
         title: detail.title,
         department: deptName,
         level: detail.level,
+        status: (detail.status as RecruitmentStatus) || "",
         jobDescription: detail.jobDescription,
         referenceInfo: detail.referenceInfo ?? "",
       });
@@ -145,32 +160,37 @@ const RecruitmentUpdatePage = () => {
     }
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     const fieldErrors = validate(form);
     if (Object.keys(fieldErrors).length > 0) {
       setErrors(fieldErrors);
       return;
     }
+    if (!id) return;
 
-    setIsSubmitting(true);
-    try {
-      // updateRecruitment({ id, ...form, level: form.level as RecruitmentLevel });
-      await new Promise((res) => setTimeout(res, 800)); // placeholder
-      navigate(`/admin/recruitments/${id}`);
-    } finally {
-      setIsSubmitting(false);
-    }
+    setSubmitError(null);
+    updateRecruitment(
+      {
+        id,
+        title: form.title,
+        department: form.department,
+        level: form.level as RecruitmentLevel,
+        status: form.status as RecruitmentStatus,
+        jobDescription: form.jobDescription,
+        referenceInfo: form.referenceInfo,
+      },
+      {
+        onSuccess: () => navigate(`/admin/recruitments/${id}`),
+        onError: () => setSubmitError("Cập nhật thất bại, vui lòng thử lại."),
+      },
+    );
   };
 
-  const handleDelete = async () => {
-    setIsDeleting(true);
-    try {
-      // deleteRecruitment(id);
-      await new Promise((res) => setTimeout(res, 600)); // placeholder
-      navigate("/admin/recruitments");
-    } finally {
-      setIsDeleting(false);
-    }
+  const handleDelete = () => {
+    if (!id) return;
+    deleteRecruitment(id, {
+      onSuccess: () => navigate("/admin/recruitments"),
+    });
   };
 
   return (
@@ -184,7 +204,7 @@ const RecruitmentUpdatePage = () => {
           className="gap-2 text-gray-500 hover:text-gray-800 -ml-2"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back
+          Quay lại
         </Button>
 
         {/* Page header */}
@@ -195,13 +215,13 @@ const RecruitmentUpdatePage = () => {
             </div>
             <div>
               <h1 className="text-xl font-semibold text-gray-900">
-                Edit Position
+                Chỉnh sửa vị trí
               </h1>
               <p className="text-sm text-gray-500">
                 {isLoading ? (
                   <Skeleton className="h-4 w-40 mt-1" />
                 ) : (
-                  (detail?.title ?? "Loading...")
+                  (detail?.title ?? "Đang tải...")
                 )}
               </p>
             </div>
@@ -221,27 +241,31 @@ const RecruitmentUpdatePage = () => {
                 ) : (
                   <Trash2 className="h-4 w-4" />
                 )}
-                Delete
+                Xóa
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Delete this position?</AlertDialogTitle>
+                <AlertDialogTitle>Xóa vị trí này?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This will permanently remove{" "}
-                  <strong>&ldquo;{detail?.title}&rdquo;</strong>. This action
-                  cannot be undone.
+                  Hành động này sẽ xóa vĩnh viễn{" "}
+                  <strong>&ldquo;{detail?.title}&rdquo;</strong>. Thao tác này
+                  không thể hoàn tác.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel className="border-gray-200">
-                  Cancel
+                  Hủy
                 </AlertDialogCancel>
                 <AlertDialogAction
-                  onClick={handleDelete}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleDelete();
+                  }}
+                  disabled={isDeleting}
                   className="bg-red-500 hover:bg-red-600 text-white"
                 >
-                  Yes, delete
+                  Đồng ý xóa
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -252,10 +276,10 @@ const RecruitmentUpdatePage = () => {
         <Card className="border-gray-200 shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
-              Basic Information
+              Thông tin cơ bản
             </CardTitle>
             <CardDescription className="text-xs text-gray-400">
-              Update the core details of this position
+              Cập nhật các thông tin chính của vị trí này
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-5">
@@ -264,12 +288,12 @@ const RecruitmentUpdatePage = () => {
             ) : (
               <>
                 <FieldWrapper
-                  label="Position Title"
+                  label="Tiêu đề vị trí"
                   required
                   error={errors.title}
                 >
                   <Input
-                    placeholder="e.g. Frontend Developer"
+                    placeholder="vd: Lập trình viên Frontend"
                     value={form.title}
                     onChange={(e) => handleChange("title", e.target.value)}
                     className={`border-gray-200 focus-visible:ring-indigo-500 ${errors.title ? "border-red-300 focus-visible:ring-red-400" : ""}`}
@@ -278,12 +302,12 @@ const RecruitmentUpdatePage = () => {
 
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                   <FieldWrapper
-                    label="Department"
+                    label="Phòng ban"
                     required
                     error={errors.department}
                   >
                     <Input
-                      placeholder="e.g. Engineering"
+                      placeholder="vd: Kỹ thuật"
                       value={form.department}
                       onChange={(e) =>
                         handleChange("department", e.target.value)
@@ -292,7 +316,7 @@ const RecruitmentUpdatePage = () => {
                     />
                   </FieldWrapper>
 
-                  <FieldWrapper label="Level" required error={errors.level}>
+                  <FieldWrapper label="Cấp bậc" required error={errors.level}>
                     <Select
                       value={form.level}
                       onValueChange={(v) => handleChange("level", v)}
@@ -300,7 +324,7 @@ const RecruitmentUpdatePage = () => {
                       <SelectTrigger
                         className={`border-gray-200 ${errors.level ? "border-red-300" : ""}`}
                       >
-                        <SelectValue placeholder="Select level" />
+                        <SelectValue placeholder="Chọn cấp bậc" />
                       </SelectTrigger>
                       <SelectContent>
                         {LEVEL_OPTIONS.map((level) => (
@@ -312,6 +336,26 @@ const RecruitmentUpdatePage = () => {
                     </Select>
                   </FieldWrapper>
                 </div>
+
+                <FieldWrapper label="Trạng thái" required error={errors.status}>
+                  <Select
+                    value={form.status}
+                    onValueChange={(v) => handleChange("status", v)}
+                  >
+                    <SelectTrigger
+                      className={`border-gray-200 sm:w-1/2 ${errors.status ? "border-red-300" : ""}`}
+                    >
+                      <SelectValue placeholder="Chọn trạng thái" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {STATUS_OPTIONS.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FieldWrapper>
               </>
             )}
           </CardContent>
@@ -321,10 +365,10 @@ const RecruitmentUpdatePage = () => {
         <Card className="border-gray-200 shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
-              Content
+              Nội dung
             </CardTitle>
             <CardDescription className="text-xs text-gray-400">
-              Update the role description and any reference material
+              Cập nhật mô tả công việc và các tài liệu tham khảo
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-5">
@@ -340,12 +384,12 @@ const RecruitmentUpdatePage = () => {
             ) : (
               <>
                 <FieldWrapper
-                  label="Job Description"
+                  label="Mô tả công việc"
                   required
                   error={errors.jobDescription}
                 >
                   <Textarea
-                    placeholder="Describe the responsibilities, requirements..."
+                    placeholder="Mô tả trách nhiệm, yêu cầu..."
                     value={form.jobDescription}
                     onChange={(e) =>
                       handleChange("jobDescription", e.target.value)
@@ -354,18 +398,18 @@ const RecruitmentUpdatePage = () => {
                     className={`resize-none border-gray-200 focus-visible:ring-indigo-500 leading-relaxed ${errors.jobDescription ? "border-red-300 focus-visible:ring-red-400" : ""}`}
                   />
                   <p className="text-xs text-gray-400 mt-1">
-                    {form.jobDescription.length} characters
+                    {form.jobDescription.length} ký tự
                   </p>
                 </FieldWrapper>
 
                 <Separator className="bg-gray-100" />
 
                 <FieldWrapper
-                  label="Reference Information"
+                  label="Thông tin tham khảo"
                   error={errors.referenceInfo}
                 >
                   <Textarea
-                    placeholder="Optional links, salary range, or additional notes..."
+                    placeholder="Liên kết tùy chọn, mức lương, hoặc ghi chú bổ sung..."
                     value={form.referenceInfo}
                     onChange={(e) =>
                       handleChange("referenceInfo", e.target.value)
@@ -379,6 +423,10 @@ const RecruitmentUpdatePage = () => {
           </CardContent>
         </Card>
 
+        {submitError && (
+          <p className="text-sm text-red-500 text-right">{submitError}</p>
+        )}
+
         {/* Actions */}
         <div className="flex items-center justify-end gap-3 pb-4">
           <Button
@@ -387,7 +435,7 @@ const RecruitmentUpdatePage = () => {
             disabled={isSubmitting}
             className="border-gray-200 text-gray-600 hover:text-gray-800"
           >
-            Cancel
+            Hủy
           </Button>
           <Button
             onClick={handleSubmit}
@@ -397,12 +445,12 @@ const RecruitmentUpdatePage = () => {
             {isSubmitting ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Saving...
+                Đang lưu...
               </>
             ) : (
               <>
                 <Save className="h-4 w-4" />
-                Save Changes
+                Lưu thay đổi
               </>
             )}
           </Button>

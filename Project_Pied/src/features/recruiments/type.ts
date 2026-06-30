@@ -7,6 +7,8 @@ export type RecruitmentLevel =
   | "Middle"
   | "Senior";
 
+export type RecruitmentStatus = "Open" | "Draft" | "Closed";
+
 export interface Department {
   id: string;
   name: string;
@@ -18,6 +20,7 @@ export interface PublicRecruitmentItem {
   title: string;
   level: RecruitmentLevel;
   department: Department;
+  status?: RecruitmentStatus | null;
   createdAt: string;
 }
 
@@ -26,6 +29,7 @@ export interface PublicRecruitmentDetail {
   title: string;
   level: RecruitmentLevel;
   department: Department;
+  status?: RecruitmentStatus | null;
   jobDescription: string;
   referenceInfo: string | null;
   createdAt: string;
@@ -36,4 +40,32 @@ export interface PublicRecruitmentQueryParams {
   limit?: number;
   search?: string;
   level?: RecruitmentLevel | "all" | "";
+}
+
+// ─── Recruitment CRUD payloads ─────────────────────────────────────────────────
+
+export interface RecruitmentPayload {
+  title: string;
+  department: string;
+  level: RecruitmentLevel;
+  status: RecruitmentStatus;
+  jobDescription: string;
+  referenceInfo?: string;
+}
+
+export type CreateRecruitmentPayload = RecruitmentPayload;
+
+export interface UpdateRecruitmentPayload extends RecruitmentPayload {
+  id: string;
+}
+
+// ─── Recruitment application (apply form) ──────────────────────────────────────
+
+export interface RecruitmentApplicationPayload {
+  recruitmentId: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  coverLetter?: string;
+  cvUrl?: string;
 }

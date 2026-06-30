@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { usePublicRecruitmentDetail } from "../hooks/useRecruitment";
+import {
+  useApplyRecruitment,
+  usePublicRecruitmentDetail,
+} from "../hooks/useRecruitment";
 import { Button } from "@/shared/components/ui/button";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Separator } from "@/shared/components/ui/separator";
@@ -17,7 +20,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/shared/components/ui/dialog";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
@@ -36,8 +38,6 @@ import {
 import { format } from "date-fns";
 import type { RecruitmentLevel } from "../type";
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
 const LEVEL_COLOR: Record<RecruitmentLevel, string> = {
   all: "bg-slate-100 text-slate-700 border-slate-200",
   Intern: "bg-slate-100 text-slate-700 border-slate-200",
@@ -46,8 +46,6 @@ const LEVEL_COLOR: Record<RecruitmentLevel, string> = {
   Middle: "bg-violet-50 text-violet-700 border-violet-200",
   Senior: "bg-amber-50 text-amber-700 border-amber-200",
 };
-
-// ─── Meta item ────────────────────────────────────────────────────────────────
 
 const MetaItem = ({
   icon: Icon,
@@ -59,8 +57,8 @@ const MetaItem = ({
   value: React.ReactNode;
 }) => (
   <div className="flex items-start gap-3">
-    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-50 mt-0.5 shrink-0">
-      <Icon className="h-4 w-4 text-gray-400" />
+    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 mt-0.5">
+      <Icon className="h-4 w-4 text-gray-500" />
     </div>
     <div>
       <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">
@@ -93,49 +91,53 @@ type ApplyError = Partial<Record<keyof ApplyForm, string>>;
 
 const validateApply = (form: ApplyForm): ApplyError => {
   const errors: ApplyError = {};
-  if (!form.fullName.trim()) errors.fullName = "Full name is required.";
+  if (!form.fullName.trim()) errors.fullName = "Họ và tên là bắt buộc.";
   if (!form.email.trim()) {
-    errors.email = "Email is required.";
+    errors.email = "Email là bắt buộc.";
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-    errors.email = "Enter a valid email address.";
+    errors.email = "Vui lòng nhập địa chỉ email hợp lệ.";
   }
-  if (!form.phone.trim()) errors.phone = "Phone number is required.";
+  if (!form.phone.trim()) errors.phone = "Số điện thoại là bắt buộc.";
   return errors;
 };
 
 // ─── Apply dialog ─────────────────────────────────────────────────────────────
 
-const ApplyDialog = ({ positionTitle }: { positionTitle?: string }) => {
-  const [open, setOpen] = useState(false);
+const ApplyDialog = ({
+  open,
+  onOpenChange,
+  recruitmentId,
+  positionTitle,
+}: {
+  open: boolean;
+  onOpenChange: (val: boolean) => void;
+  recruitmentId: string;
+  positionTitle?: string;
+}) => {
   const [form, setForm] = useState<ApplyForm>(INITIAL_APPLY);
   const [errors, setErrors] = useState<ApplyError>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const { mutate: applyRecruitment, isPending } = useApplyRecruitment();
 
   const handleChange = (field: keyof ApplyForm, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     const fieldErrors = validateApply(form);
     if (Object.keys(fieldErrors).length > 0) {
       setErrors(fieldErrors);
       return;
     }
-    setIsSubmitting(true);
-    try {
-      // TODO: replace with actual mutation
-      // e.g. await applyForPosition({ recruitmentId: id, ...form });
-      await new Promise((res) => setTimeout(res, 900));
-      setSubmitted(true);
-    } finally {
-      setIsSubmitting(false);
-    }
+    applyRecruitment(
+      { recruitmentId, ...form },
+      { onSuccess: () => setSubmitted(true) },
+    );
   };
 
   const handleOpenChange = (val: boolean) => {
-    setOpen(val);
+    onOpenChange(val);
     if (!val) {
       setForm(INITIAL_APPLY);
       setErrors({});
@@ -145,13 +147,6 @@ const ApplyDialog = ({ positionTitle }: { positionTitle?: string }) => {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        <Button className="w-full gap-2 bg-indigo-600 hover:bg-indigo-700 h-11 rounded-xl text-base font-semibold shadow-sm shadow-indigo-200">
-          <Send className="h-4 w-4" />
-          Apply Now
-        </Button>
-      </DialogTrigger>
-
       <DialogContent className="sm:max-w-lg">
         {submitted ? (
           /* ── Success state ── */
@@ -161,14 +156,14 @@ const ApplyDialog = ({ positionTitle }: { positionTitle?: string }) => {
             </div>
             <DialogHeader>
               <DialogTitle className="text-lg font-semibold text-gray-900">
-                Application submitted!
+                Đã nộp đơn ứng tuyển!
               </DialogTitle>
               <DialogDescription className="text-sm text-gray-500 mt-1">
-                Thank you for applying to{" "}
+                Cảm ơn bạn đã ứng tuyển vào vị trí{" "}
                 <span className="font-medium text-gray-700">
                   {positionTitle}
                 </span>
-                . We'll review your application and get back to you soon.
+                . Chúng tôi sẽ xem xét hồ sơ của bạn và phản hồi sớm nhất.
               </DialogDescription>
             </DialogHeader>
             <Button
@@ -176,7 +171,7 @@ const ApplyDialog = ({ positionTitle }: { positionTitle?: string }) => {
               className="mt-2 border-gray-200"
               onClick={() => handleOpenChange(false)}
             >
-              Close
+              Đóng
             </Button>
           </div>
         ) : (
@@ -184,7 +179,7 @@ const ApplyDialog = ({ positionTitle }: { positionTitle?: string }) => {
           <>
             <DialogHeader>
               <DialogTitle className="text-lg font-semibold text-gray-900">
-                Apply for this position
+                Ứng tuyển vị trí này
               </DialogTitle>
               <DialogDescription className="text-sm text-gray-500">
                 {positionTitle && (
@@ -199,10 +194,10 @@ const ApplyDialog = ({ positionTitle }: { positionTitle?: string }) => {
               {/* Full name */}
               <div className="space-y-1.5">
                 <Label className="text-sm font-medium text-gray-700">
-                  Full Name <span className="text-red-500">*</span>
+                  Họ và tên <span className="text-red-500">*</span>
                 </Label>
                 <Input
-                  placeholder="Nguyen Van A"
+                  placeholder="Nguyễn Văn A"
                   value={form.fullName}
                   onChange={(e) => handleChange("fullName", e.target.value)}
                   className={`border-gray-200 focus-visible:ring-indigo-500 ${errors.fullName ? "border-red-300" : ""}`}
@@ -231,7 +226,7 @@ const ApplyDialog = ({ positionTitle }: { positionTitle?: string }) => {
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-sm font-medium text-gray-700">
-                    Phone <span className="text-red-500">*</span>
+                    Số điện thoại <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     type="tel"
@@ -249,8 +244,8 @@ const ApplyDialog = ({ positionTitle }: { positionTitle?: string }) => {
               {/* CV URL */}
               <div className="space-y-1.5">
                 <Label className="text-sm font-medium text-gray-700">
-                  CV / Portfolio link{" "}
-                  <span className="text-gray-400 font-normal">(optional)</span>
+                  Đường dẫn CV / Portfolio{" "}
+                  <span className="text-gray-400 font-normal">(tùy chọn)</span>
                 </Label>
                 <Input
                   placeholder="https://drive.google.com/..."
@@ -263,11 +258,11 @@ const ApplyDialog = ({ positionTitle }: { positionTitle?: string }) => {
               {/* Cover letter */}
               <div className="space-y-1.5">
                 <Label className="text-sm font-medium text-gray-700">
-                  Cover Letter{" "}
-                  <span className="text-gray-400 font-normal">(optional)</span>
+                  Thư giới thiệu{" "}
+                  <span className="text-gray-400 font-normal">(tùy chọn)</span>
                 </Label>
                 <Textarea
-                  placeholder="Tell us a bit about yourself and why you're a great fit..."
+                  placeholder="Hãy chia sẻ đôi điều về bản thân và lý do bạn phù hợp với vị trí này..."
                   value={form.coverLetter}
                   onChange={(e) => handleChange("coverLetter", e.target.value)}
                   rows={4}
@@ -280,25 +275,25 @@ const ApplyDialog = ({ positionTitle }: { positionTitle?: string }) => {
               <Button
                 variant="outline"
                 onClick={() => handleOpenChange(false)}
-                disabled={isSubmitting}
+                disabled={isPending}
                 className="border-gray-200 text-gray-600"
               >
-                Cancel
+                Hủy
               </Button>
               <Button
                 onClick={handleSubmit}
-                disabled={isSubmitting}
+                disabled={isPending}
                 className="gap-2 bg-indigo-600 hover:bg-indigo-700 min-w-[120px]"
               >
-                {isSubmitting ? (
+                {isPending ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Submitting...
+                    Đang gửi...
                   </>
                 ) : (
                   <>
                     <Send className="h-4 w-4" />
-                    Submit
+                    Gửi hồ sơ
                   </>
                 )}
               </Button>
@@ -312,34 +307,35 @@ const ApplyDialog = ({ positionTitle }: { positionTitle?: string }) => {
 
 // ─── Main page ─────────────────────────────────────────────────────────────────
 
-const PublicRecruitmentDetailPage = () => {
+const RecruitmentDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-
   const { data, isLoading, isError } = usePublicRecruitmentDetail(id ?? "");
-  const detail = data?.value;
+  const [applyOpen, setApplyOpen] = useState(false);
 
-  // ── Error state ────────────────────────────────────────────────────────────
+  const detail = data?.value;
+  const isClosed = detail?.status === "Closed";
+
   if (isError) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-indigo-50/60 via-white to-white flex items-center justify-center p-6">
-        <Card className="w-full max-w-md text-center border-gray-100 shadow-sm">
+      <div className="min-h-screen bg-gray-50/50 p-6 flex items-center justify-center">
+        <Card className="w-full max-w-md text-center border-gray-200 shadow-sm">
           <CardContent className="pt-10 pb-10 space-y-3">
             <div className="flex h-14 w-14 items-center justify-center rounded-full bg-red-50 mx-auto">
               <BriefcaseBusiness className="h-6 w-6 text-red-400" />
             </div>
             <p className="text-base font-semibold text-gray-800">
-              Position not found
+              Không tìm thấy vị trí
             </p>
             <p className="text-sm text-gray-500">
-              This position may have been closed or does not exist.
+              Vị trí này có thể đã bị gỡ bỏ hoặc không tồn tại.
             </p>
             <Button
               variant="outline"
-              onClick={() => navigate("/recruitments/:id")}
+              onClick={() => navigate("/recruitments")}
               className="mt-4 border-gray-200"
             >
-              Browse other positions
+              Quay lại danh sách
             </Button>
           </CardContent>
         </Card>
@@ -348,53 +344,39 @@ const PublicRecruitmentDetailPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-indigo-50/60 via-white to-white">
-      {/* ── Top bar ─────────────────────────────────────────────────────────── */}
-      <div className="sticky top-0 z-10 border-b border-gray-100 bg-white/80 backdrop-blur-sm">
-        <div className="mx-auto max-w-5xl px-4 py-3 flex items-center justify-between gap-4">
+    <div className="min-h-screen bg-gray-50/50 p-6">
+      <div className="mx-auto max-w-4xl space-y-6">
+        {/* Top bar: back + quick apply */}
+        <div className="flex items-center justify-between gap-4">
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => navigate("/recruitments/:id")}
-            className="gap-2 text-gray-500 hover:text-gray-800 -ml-2 shrink-0"
+            onClick={() => navigate("/recruitments")}
+            className="gap-2 text-gray-500 hover:text-gray-800 -ml-2"
           >
             <ArrowLeft className="h-4 w-4" />
-            All positions
+            Quay lại danh sách
           </Button>
 
-          {/* Quick apply in topbar (hidden on mobile) */}
-          {!isLoading && (
-            <div className="hidden sm:block">
-              <ApplyDialog positionTitle={detail?.title} />
-            </div>
+          {!isLoading && !isClosed && (
+            <Button
+              onClick={() => setApplyOpen(true)}
+              className="gap-2 bg-indigo-600 hover:bg-indigo-700 shrink-0"
+            >
+              <Send className="h-4 w-4" />
+              Ứng tuyển ngay
+            </Button>
           )}
         </div>
-      </div>
 
-      {/* ── Content ──────────────────────────────────────────────────────────── */}
-      <main className="mx-auto max-w-5xl px-4 py-10">
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-          {/* ── Sidebar ─────────────────────────────────────────────────────── */}
-          <aside className="lg:col-span-1 space-y-4 lg:order-2">
-            {/* Apply card */}
-            <Card className="border-indigo-100 bg-indigo-50/40 shadow-sm">
-              <CardContent className="pt-5 pb-5 space-y-3">
-                <p className="text-sm font-medium text-gray-700 text-center">
-                  Interested in this role?
-                </p>
-                {isLoading ? (
-                  <Skeleton className="h-11 w-full rounded-xl" />
-                ) : (
-                  <ApplyDialog positionTitle={detail?.title} />
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Position info */}
-            <Card className="border-gray-100 shadow-sm">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          {/* Sidebar */}
+          <div className="space-y-4">
+            {/* Meta card */}
+            <Card className="border-gray-200 shadow-sm">
               <CardHeader className="pb-3">
-                <CardTitle className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Position Info
+                <CardTitle className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
+                  Thông tin vị trí
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -409,13 +391,13 @@ const PublicRecruitmentDetailPage = () => {
                   <>
                     <MetaItem
                       icon={BriefcaseBusiness}
-                      label="Position"
+                      label="Tiêu đề"
                       value={detail?.title}
                     />
                     <Separator className="bg-gray-100" />
                     <MetaItem
                       icon={Building2}
-                      label="Department"
+                      label="Phòng ban"
                       value={
                         typeof detail?.department === "object"
                           ? (detail.department as { name: string })?.name
@@ -425,7 +407,7 @@ const PublicRecruitmentDetailPage = () => {
                     <Separator className="bg-gray-100" />
                     <MetaItem
                       icon={TrendingUp}
-                      label="Level"
+                      label="Cấp bậc"
                       value={
                         detail?.level ? (
                           <span
@@ -439,10 +421,10 @@ const PublicRecruitmentDetailPage = () => {
                     <Separator className="bg-gray-100" />
                     <MetaItem
                       icon={CalendarDays}
-                      label="Posted on"
+                      label="Ngày đăng"
                       value={
                         detail?.createdAt
-                          ? format(new Date(detail.createdAt), "MMMM d, yyyy")
+                          ? format(new Date(detail.createdAt), "dd/MM/yyyy")
                           : ""
                       }
                     />
@@ -450,55 +432,55 @@ const PublicRecruitmentDetailPage = () => {
                 )}
               </CardContent>
             </Card>
-          </aside>
+          </div>
 
-          {/* ── Main content ─────────────────────────────────────────────────── */}
-          <div className="lg:col-span-2 space-y-6 lg:order-1">
+          {/* Main content */}
+          <div className="lg:col-span-2 space-y-5">
             {/* Title header */}
-            <div>
-              {isLoading ? (
-                <div className="space-y-3">
-                  <Skeleton className="h-9 w-3/4" />
-                  <Skeleton className="h-5 w-1/3" />
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <div className="flex flex-wrap items-start gap-3">
-                    <h1 className="text-3xl font-bold tracking-tight text-gray-900 leading-tight">
-                      {detail?.title}
-                    </h1>
-                    {detail?.level && (
-                      <span
-                        className={`mt-1 inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold ${LEVEL_COLOR[detail.level]}`}
-                      >
-                        {detail.level}
-                      </span>
-                    )}
+            <Card className="border-gray-200 shadow-sm">
+              <CardContent className="pt-6 pb-6">
+                {isLoading ? (
+                  <div className="space-y-3">
+                    <Skeleton className="h-7 w-3/4" />
+                    <Skeleton className="h-4 w-1/3" />
                   </div>
-                  <p className="flex items-center gap-1.5 text-sm text-gray-500">
-                    <Building2 className="h-3.5 w-3.5" />
-                    {typeof detail?.department === "object"
-                      ? (detail.department as { name: string })?.name
-                      : detail?.department}
-                  </p>
-                </div>
-              )}
-            </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="flex items-start justify-between gap-4">
+                      <h1 className="text-2xl font-bold text-gray-900 leading-tight">
+                        {detail?.title}
+                      </h1>
+                      <span
+                        className={`shrink-0 inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold ${detail?.level ? LEVEL_COLOR[detail.level] : ""}`}
+                      >
+                        {detail?.level}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-500 flex items-center gap-1.5">
+                      <Building2 className="h-3.5 w-3.5" />
+                      {typeof detail?.department === "object"
+                        ? (detail.department as { name: string })?.name
+                        : detail?.department}
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
             {/* Job Description */}
-            <Card className="border-gray-100 shadow-sm">
+            <Card className="border-gray-200 shadow-sm">
               <CardHeader className="pb-3">
-                <CardTitle className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Job Description
+                <CardTitle className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
+                  Mô tả công việc
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {isLoading ? (
-                  <div className="space-y-2.5">
-                    {Array.from({ length: 8 }).map((_, i) => (
+                  <div className="space-y-2">
+                    {Array.from({ length: 5 }).map((_, i) => (
                       <Skeleton
                         key={i}
-                        className={`h-4 ${i === 7 ? "w-2/3" : "w-full"}`}
+                        className={`h-4 ${i === 4 ? "w-2/3" : "w-full"}`}
                       />
                     ))}
                   </div>
@@ -515,11 +497,11 @@ const PublicRecruitmentDetailPage = () => {
 
             {/* Reference Info */}
             {(isLoading || detail?.referenceInfo) && (
-              <Card className="border-gray-100 shadow-sm">
+              <Card className="border-gray-200 shadow-sm">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-xs font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+                  <CardTitle className="text-sm font-semibold text-gray-600 uppercase tracking-wide flex items-center gap-2">
                     <ExternalLink className="h-3.5 w-3.5" />
-                    Reference Information
+                    Thông tin tham khảo
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -545,22 +527,43 @@ const PublicRecruitmentDetailPage = () => {
               <div className="rounded-2xl border border-indigo-100 bg-indigo-50/40 p-6 flex flex-col sm:flex-row items-center gap-4 justify-between">
                 <div>
                   <p className="text-base font-semibold text-gray-900">
-                    Ready to apply?
+                    {isClosed
+                      ? "Vị trí này hiện đã đóng tuyển"
+                      : "Sẵn sàng ứng tuyển?"}
                   </p>
                   <p className="text-sm text-gray-500 mt-0.5">
-                    Join our team and make an impact.
+                    {isClosed
+                      ? "Hãy theo dõi các vị trí khác đang mở."
+                      : "Tham gia đội ngũ của chúng tôi và tạo ra sự khác biệt."}
                   </p>
                 </div>
                 <div className="w-full sm:w-auto shrink-0">
-                  <ApplyDialog positionTitle={detail?.title} />
+                  <Button
+                    onClick={() =>
+                      isClosed ? navigate("/recruitments") : setApplyOpen(true)
+                    }
+                    className="w-full sm:w-auto gap-2 bg-indigo-600 hover:bg-indigo-700"
+                  >
+                    <Send className="h-4 w-4" />
+                    {isClosed ? "Xem các vị trí khác" : "Ứng tuyển ngay"}
+                  </Button>
                 </div>
               </div>
             )}
           </div>
         </div>
-      </main>
+      </div>
+
+      {detail && (
+        <ApplyDialog
+          open={applyOpen}
+          onOpenChange={setApplyOpen}
+          recruitmentId={detail.id}
+          positionTitle={detail.title}
+        />
+      )}
     </div>
   );
 };
 
-export default PublicRecruitmentDetailPage;
+export default RecruitmentDetails;

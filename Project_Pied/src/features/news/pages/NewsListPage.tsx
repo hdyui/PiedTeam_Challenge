@@ -1,6 +1,6 @@
 // src/features/news/pages/NewsListPage.tsx
 import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { DataTable, type ColumnDef } from "@/shared/components/ui/DataTable";
 import { UrlPagination } from "@/shared/components/ui/UrlPagination";
 import { Button } from "@/shared/components/ui/button";
@@ -17,11 +17,20 @@ import { Card, CardContent } from "@/shared/components/ui/card";
 import { useNewsList, useDeleteNews } from "../hooks/useNews";
 import { NewsStatusBadge } from "../components/NewsStatusBadge";
 import type { NewsListItem, NewsStatus } from "../type";
-import { Loader2, Search, SlidersHorizontal, Trash2 } from "lucide-react";
+import {
+  Edit,
+  Eye,
+  Loader2,
+  Plus,
+  Search,
+  SlidersHorizontal,
+  Trash2,
+} from "lucide-react";
 
 const LIMIT = 10;
 
 export const NewsListPage = () => {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const page = Number(searchParams.get("page")) || 1;
 
@@ -112,31 +121,31 @@ export const NewsListPage = () => {
     {
       header: "Thao tác",
       cell: (item) => (
-        <div className="flex gap-3 items-center">
-          <Link
-            to={`/admin/news/${item.id}`}
-            className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
+        <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+          <Button
+            size="icon"
+            variant="ghost"
+            className="h-8 text-xs text-gray-600 hover:text-indigo-600 hover:bg-indigo-50"
+            onClick={() => navigate(`/admin/news/update/${item.id}`)}
           >
-            Xem
-          </Link>
-          <Link
-            to={`/admin/news/update/${item.id}`}
-            className="text-sm text-orange-500 hover:text-orange-700 font-medium transition-colors"
+            <Edit className="h-4 w-4" />
+          </Button>
+          <Button
+            size="icon"
+            variant="ghost"
+            className="h-8 text-xs text-gray-600 hover:text-indigo-600 hover:bg-indigo-50"
+            onClick={() => navigate(`/admin/news/${item.id}`)}
           >
-            Sửa
-          </Link>
-          <button
-            onClick={() => handleDelete(item.id)}
-            disabled={isDeleting && deletingId === item.id}
-            className="text-red-500 hover:text-red-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            title="Xóa bài viết"
+            <Eye className="h-4 w-4" />
+          </Button>
+          <Button
+            size="icon"
+            variant="ghost"
+            className="h-8 text-xs text-gray-600 hover:text-indigo-600 hover:bg-indigo-50"
+            onClick={() => navigate(`/admin/news/${item.id}`)}
           >
-            {isDeleting && deletingId === item.id ? (
-              <Loader2 size={15} className="animate-spin" />
-            ) : (
-              <Trash2 size={15} />
-            )}
-          </button>
+            <Trash2 className="h-4 w-4" />
+          </Button>
         </div>
       ),
     },
@@ -158,14 +167,15 @@ export const NewsListPage = () => {
           </p>
         </div>
         <Link to="/admin/news/create">
-          <Button className="bg-blue-600 hover:bg-blue-700">
-            + Viết bài mới
+          <Button className="bg-blue-600 hover:bg-blue-900 w-40 h-9">
+            <Plus className="h-4 w-4" />
+            Viết bài mới
           </Button>
         </Link>
       </div>
 
       {/* Bộ lọc */}
-      <div className="grid gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:grid-cols-[minmax(0,1fr)_260px] sm:items-center">
+      <div className="grid gap-3 rounded-xl p-1 sm:grid-cols-[minmax(0,1fr)_260px] sm:items-center">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <div className="relative flex-1 sm:max-w-md">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
@@ -188,7 +198,7 @@ export const NewsListPage = () => {
           ) : null}
         </div>
 
-        <div className="flex items-center justify-between gap-3 rounded-2xl border border-gray-200 bg-slate-50 p-3 shadow-sm">
+        <div className="flex items-center justify-between gap-3 rounded-2xl border border-gray-200 bg-slate-50 p-1.5 shadow-sm">
           <div className="flex shrink-0 items-center gap-2 text-sm font-medium text-gray-600">
             <SlidersHorizontal className="size-4 text-gray-500" />
             Trạng thái

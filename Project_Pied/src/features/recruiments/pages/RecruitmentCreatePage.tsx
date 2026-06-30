@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useCreateRecruitment } from "../hooks/useRecruitment";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
@@ -20,10 +21,7 @@ import {
 } from "@/shared/components/ui/card";
 import { Separator } from "@/shared/components/ui/separator";
 import { ArrowLeft, BriefcaseBusiness, Loader2, Save } from "lucide-react";
-import type { RecruitmentLevel } from "../type";
-
-// Replace with your actual mutation hook, e.g.:
-// import { useCreateRecruitment } from "../hooks/useRecruitment";
+import type { RecruitmentLevel, RecruitmentStatus } from "../type";
 
 const LEVEL_OPTIONS: RecruitmentLevel[] = [
   "Intern",
@@ -33,10 +31,17 @@ const LEVEL_OPTIONS: RecruitmentLevel[] = [
   "Senior",
 ];
 
+const STATUS_OPTIONS: { label: string; value: RecruitmentStatus }[] = [
+  { label: "Đang mở (Open)", value: "Open" },
+  { label: "Bản nháp (Draft)", value: "Draft" },
+  { label: "Đã đóng (Closed)", value: "Closed" },
+];
+
 interface FormState {
   title: string;
   department: string;
   level: RecruitmentLevel | "";
+  status: RecruitmentStatus | "";
   jobDescription: string;
   referenceInfo: string;
 }
@@ -45,6 +50,7 @@ const INITIAL_FORM: FormState = {
   title: "",
   department: "",
   level: "",
+  status: "Draft",
   jobDescription: "",
   referenceInfo: "",
 };
@@ -53,11 +59,12 @@ type FieldError = Partial<Record<keyof FormState, string>>;
 
 const validate = (form: FormState): FieldError => {
   const errors: FieldError = {};
-  if (!form.title.trim()) errors.title = "Title is required.";
-  if (!form.department.trim()) errors.department = "Department is required.";
-  if (!form.level) errors.level = "Level is required.";
+  if (!form.title.trim()) errors.title = "Tiêu đề là bắt buộc.";
+  if (!form.department.trim()) errors.department = "Phòng ban là bắt buộc.";
+  if (!form.level) errors.level = "Cấp bậc là bắt buộc.";
+  if (!form.status) errors.status = "Trạng thái là bắt buộc.";
   if (!form.jobDescription.trim())
-    errors.jobDescription = "Job description is required.";
+    errors.jobDescription = "Mô tả công việc là bắt buộc.";
   return errors;
 };
 
@@ -86,10 +93,10 @@ const RecruitmentCreatePage = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
   const [errors, setErrors] = useState<FieldError>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
-  // Plug in your mutation hook here:
-  // const { mutate: createRecruitment } = useCreateRecruitment();
+  const { mutate: createRecruitment, isPending: isSubmitting } =
+    useCreateRecruitment();
 
   const handleChange = (field: keyof FormState, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -98,21 +105,28 @@ const RecruitmentCreatePage = () => {
     }
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     const fieldErrors = validate(form);
     if (Object.keys(fieldErrors).length > 0) {
       setErrors(fieldErrors);
       return;
     }
 
-    setIsSubmitting(true);
-    try {
-      // createRecruitment({ ...form, level: form.level as RecruitmentLevel });
-      await new Promise((res) => setTimeout(res, 800)); // placeholder
-      navigate("/recruitments");
-    } finally {
-      setIsSubmitting(false);
-    }
+    setSubmitError(null);
+    createRecruitment(
+      {
+        title: form.title,
+        department: form.department,
+        level: form.level as RecruitmentLevel,
+        status: form.status as RecruitmentStatus,
+        jobDescription: form.jobDescription,
+        referenceInfo: form.referenceInfo,
+      },
+      {
+        onSuccess: () => navigate("/admin/recruitments"),
+        onError: () => setSubmitError("Đăng tin thất bại, vui lòng thử lại."),
+      },
+    );
   };
 
   return (
@@ -126,7 +140,7 @@ const RecruitmentCreatePage = () => {
           className="gap-2 text-gray-500 hover:text-gray-800 -ml-2"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back
+          Quay lại
         </Button>
 
         {/* Page header */}
@@ -135,11 +149,9 @@ const RecruitmentCreatePage = () => {
             <BriefcaseBusiness className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-semibold text-gray-900">
-              New Position
-            </h1>
+            <h1 className="text-xl font-semibold text-gray-900">Vị trí mới</h1>
             <p className="text-sm text-gray-500">
-              Fill in the details to post a new opening
+              Điền thông tin chi tiết để đăng tin tuyển dụng mới
             </p>
           </div>
         </div>
@@ -148,16 +160,16 @@ const RecruitmentCreatePage = () => {
         <Card className="border-gray-200 shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
-              Basic Information
+              Thông tin cơ bản
             </CardTitle>
             <CardDescription className="text-xs text-gray-400">
-              General details about the position
+              Các thông tin chung về vị trí
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-5">
-            <FieldWrapper label="Position Title" required error={errors.title}>
+            <FieldWrapper label="Tiêu đề vị trí" required error={errors.title}>
               <Input
-                placeholder="e.g. Frontend Developer"
+                placeholder="vd: Lập trình viên Frontend"
                 value={form.title}
                 onChange={(e) => handleChange("title", e.target.value)}
                 className={`border-gray-200 focus-visible:ring-indigo-500 ${errors.title ? "border-red-300 focus-visible:ring-red-400" : ""}`}
@@ -166,19 +178,19 @@ const RecruitmentCreatePage = () => {
 
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <FieldWrapper
-                label="Department"
+                label="Phòng ban"
                 required
                 error={errors.department}
               >
                 <Input
-                  placeholder="e.g. Engineering"
+                  placeholder="vd: Kỹ thuật"
                   value={form.department}
                   onChange={(e) => handleChange("department", e.target.value)}
                   className={`border-gray-200 focus-visible:ring-indigo-500 ${errors.department ? "border-red-300 focus-visible:ring-red-400" : ""}`}
                 />
               </FieldWrapper>
 
-              <FieldWrapper label="Level" required error={errors.level}>
+              <FieldWrapper label="Cấp bậc" required error={errors.level}>
                 <Select
                   value={form.level}
                   onValueChange={(v) => handleChange("level", v)}
@@ -186,7 +198,7 @@ const RecruitmentCreatePage = () => {
                   <SelectTrigger
                     className={`border-gray-200 ${errors.level ? "border-red-300" : ""}`}
                   >
-                    <SelectValue placeholder="Select level" />
+                    <SelectValue placeholder="Chọn cấp bậc" />
                   </SelectTrigger>
                   <SelectContent>
                     {LEVEL_OPTIONS.map((level) => (
@@ -198,6 +210,26 @@ const RecruitmentCreatePage = () => {
                 </Select>
               </FieldWrapper>
             </div>
+
+            <FieldWrapper label="Trạng thái" required error={errors.status}>
+              <Select
+                value={form.status}
+                onValueChange={(v) => handleChange("status", v)}
+              >
+                <SelectTrigger
+                  className={`border-gray-200 sm:w-1/2 ${errors.status ? "border-red-300" : ""}`}
+                >
+                  <SelectValue placeholder="Chọn trạng thái" />
+                </SelectTrigger>
+                <SelectContent>
+                  {STATUS_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FieldWrapper>
           </CardContent>
         </Card>
 
@@ -205,38 +237,38 @@ const RecruitmentCreatePage = () => {
         <Card className="border-gray-200 shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
-              Content
+              Nội dung
             </CardTitle>
             <CardDescription className="text-xs text-gray-400">
-              Describe the role and responsibilities in detail
+              Mô tả chi tiết vai trò và trách nhiệm
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-5">
             <FieldWrapper
-              label="Job Description"
+              label="Mô tả công việc"
               required
               error={errors.jobDescription}
             >
               <Textarea
-                placeholder="Describe the responsibilities, requirements, and what the candidate will be working on..."
+                placeholder="Mô tả trách nhiệm, yêu cầu, và những công việc ứng viên sẽ đảm nhận..."
                 value={form.jobDescription}
                 onChange={(e) => handleChange("jobDescription", e.target.value)}
                 rows={8}
                 className={`resize-none border-gray-200 focus-visible:ring-indigo-500 leading-relaxed ${errors.jobDescription ? "border-red-300 focus-visible:ring-red-400" : ""}`}
               />
               <p className="text-xs text-gray-400 mt-1">
-                {form.jobDescription.length} characters
+                {form.jobDescription.length} ký tự
               </p>
             </FieldWrapper>
 
             <Separator className="bg-gray-100" />
 
             <FieldWrapper
-              label="Reference Information"
+              label="Thông tin tham khảo"
               error={errors.referenceInfo}
             >
               <Textarea
-                placeholder="Optional links, salary range, or additional notes for candidates..."
+                placeholder="Liên kết tùy chọn, mức lương, hoặc các ghi chú bổ sung cho ứng viên..."
                 value={form.referenceInfo}
                 onChange={(e) => handleChange("referenceInfo", e.target.value)}
                 rows={4}
@@ -246,6 +278,10 @@ const RecruitmentCreatePage = () => {
           </CardContent>
         </Card>
 
+        {submitError && (
+          <p className="text-sm text-red-500 text-right">{submitError}</p>
+        )}
+
         {/* Actions */}
         <div className="flex items-center justify-end gap-3 pb-4">
           <Button
@@ -254,7 +290,7 @@ const RecruitmentCreatePage = () => {
             disabled={isSubmitting}
             className="border-gray-200 text-gray-600 hover:text-gray-800"
           >
-            Cancel
+            Hủy
           </Button>
           <Button
             onClick={handleSubmit}
@@ -264,12 +300,12 @@ const RecruitmentCreatePage = () => {
             {isSubmitting ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Saving...
+                Đang lưu...
               </>
             ) : (
               <>
                 <Save className="h-4 w-4" />
-                Post Position
+                Đăng vị trí
               </>
             )}
           </Button>
