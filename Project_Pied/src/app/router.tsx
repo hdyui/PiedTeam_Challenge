@@ -9,8 +9,11 @@ import EmployeeProfileLayout from "@/features/employees/components/layout/Employ
 
 import { HomePage } from "@/features/auth/pages/HomePage";
 import { LoginPage } from "@/features/auth/pages/LoginPage";
+import { RegisterPage } from "@/features/auth/pages/RegisterPage";
 
 // --- ADMIN & EMPLOYEE (QUẢN LÝ) ---
+
+import { ProfilePage } from "@/features/employees/pages/AccountProfilePage";
 
 // ─── News ────────────────────────────────────────────────────────────────────
 import {
@@ -36,9 +39,11 @@ import { DepartmentListPage } from "@/features/departments/pages/DepartmentListP
 import { DepartmentCreatePage } from "@/features/departments/pages/DepartmentCreatePage";
 import { DepartmentEditPage } from "@/features/departments/pages/DepartmentEditPage";
 import { DepartmentDetailPage } from "@/features/departments/pages/DepartmentDetailPage";
-import ProfilePage from "@/features/account/pages/ProfilePage";
 
 export const router = createBrowserRouter([
+  // ==========================================
+  // 1. AUTH ROUTES (Đứng độc lập, không bọc Layout nào để màn hình login trắng tinh)
+  // ==========================================
   {
     path: "/",
     element: <MainLayout />,
@@ -50,7 +55,10 @@ export const router = createBrowserRouter([
       { path: "recruitments/:id", element: <PublicRecruitmentDetailPage /> },
       {
         element: <RequireUnAuth />,
-        children: [{ path: "login", element: <LoginPage /> }],
+        children: [
+          { path: "login", element: <LoginPage /> },
+          { path: "register", element: <RegisterPage /> },
+        ],
       },
     ],
   },
@@ -75,7 +83,7 @@ export const router = createBrowserRouter([
           { path: "accounts/update/:id", element: <AccountEditPage /> },
           { path: "accounts/:id", element: <AccountDetailPage /> },
 
-          // Departments
+          // Departments (Thêm cục này vào)
           { path: "departments", element: <DepartmentListPage /> },
           { path: "departments/create", element: <DepartmentCreatePage /> },
           { path: "departments/update/:id", element: <DepartmentEditPage /> },
@@ -117,7 +125,9 @@ export const router = createBrowserRouter([
         // element: <MainLayout />, // <-- Lớp vỏ thứ nhất: Header chung
         element: <EmployeeProfileLayout />, // Tạm dùng MainLayout, nếu có EmployeeLayout riêng thì thay vào
         children: [
-          { index: true, element: <div>Trang hiển thị profile nhân viên</div> },
+          { index: true, element: <div>Trang Dashboard Employee</div> },
+
+          // KHU VỰC CÁ NHÂN CỦA NHÂN VIÊN (Có menu dọc bên trái)
           {
             element: <EmployeeProfileLayout />, // <-- Lớp vỏ thứ hai: Menu doc
             children: [

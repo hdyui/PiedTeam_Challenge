@@ -32,7 +32,5 @@ export const queryClient = new QueryClient({
       // ⚠️ Mặc định: 5 phút
       // 💡 Cache tồn tại 5 phút kể từ khi không còn component nào dùng
     },
-
-    //
   },
 });

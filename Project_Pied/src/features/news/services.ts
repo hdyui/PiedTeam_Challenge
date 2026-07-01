@@ -146,48 +146,12 @@ export const newsApi = {
       { id: string; newsId: string; urlImage: string; isActive: boolean }[]
     >
   > {
-    const uploadedImages = await Promise.all(
-      files.map(async (file) => {
-        const formData = new FormData();
-        formData.append("UrlImage", file);
-        formData.append("IsActive", "true");
-
-        const raw = await (apiClient.post(
-          `/news/${id}/images`,
-          formData,
-        ) as unknown as Promise<any>);
-
-        return raw.value ?? raw.data ?? raw;
-      }),
-    );
-
-    const data = uploadedImages.flatMap((item) =>
-      Array.isArray(item) ? item : [item],
-    );
-    return {
-      statusCode: 200,
-      message: "",
-      data,
-    };
-  },
-
-  // ─── PUT /news/:newsId/images/:imageId ──────────────────────────────────────
-  async updateImage(
-    newsId: string,
-    imageId: string,
-    file: File,
-    isActive = true,
-  ): Promise<
-    ApiResponse<{ id: string; newsId: string; urlImage: string; isActive: boolean }>
-  > {
     const formData = new FormData();
-    formData.append("UrlImage", file);
-    formData.append("IsActive", String(isActive));
+    files.forEach((file) => formData.append("files", file));
 
-    const raw = await (apiClient.put(
-      `/news/${newsId}/images/${imageId}`,
-      formData,
-    ) as unknown as Promise<any>);
+    const raw = await (apiClient.post(`/news/${id}/images`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    }) as unknown as Promise<any>);
 
     const data = raw.value ?? raw.data ?? raw;
     return {
@@ -198,7 +162,7 @@ export const newsApi = {
             : 400
           : (raw.statusCode ?? 200),
       message: raw.error ?? raw.message ?? "",
-      data,
+      data: Array.isArray(data) ? data : [],
     };
   },
 

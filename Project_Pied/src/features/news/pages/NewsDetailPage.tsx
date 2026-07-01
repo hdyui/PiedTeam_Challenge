@@ -5,18 +5,15 @@ import { Card, CardContent } from "@/shared/components/ui/card";
 import {
   useNewsDetail,
   useDeleteNewsImage,
-  useUpdateNewsImage,
   useUploadNewsImages,
 } from "../hooks/useNews";
 import { NewsStatusBadge } from "../components/NewsStatusBadge";
-import { Loader2, Pencil, Trash2, Upload } from "lucide-react";
-import { useRef, useState } from "react";
+import { Loader2, Trash2, Upload } from "lucide-react";
+import { useRef } from "react";
 
 export const NewsDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const updateFileInputRef = useRef<HTMLInputElement>(null);
-  const [updatingImageId, setUpdatingImageId] = useState<string | null>(null);
 
   const { data, isLoading, isError } = useNewsDetail(id!);
   const {
@@ -27,31 +24,12 @@ export const NewsDetailPage = () => {
   const { mutate: uploadImages, isPending: isUploading } = useUploadNewsImages(
     id!,
   );
-  const { mutate: updateImage, isPending: isUpdatingImage } =
-    useUpdateNewsImage(id!);
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
     if (files.length > 0) {
       uploadImages(files);
     }
-    e.target.value = "";
-  };
-
-  const handleUpdateImage = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && updatingImageId) {
-      updateImage(
-        { imageId: updatingImageId, file },
-        { onSettled: () => setUpdatingImageId(null) },
-      );
-    }
-    e.target.value = "";
-  };
-
-  const openUpdateImagePicker = (imageId: string) => {
-    setUpdatingImageId(imageId);
-    updateFileInputRef.current?.click();
   };
 
   if (isLoading) {
@@ -166,13 +144,6 @@ export const NewsDetailPage = () => {
                 className="hidden"
                 onChange={handleUpload}
               />
-              <input
-                ref={updateFileInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleUpdateImage}
-              />
               <Button
                 variant="outline"
                 size="sm"
@@ -207,23 +178,8 @@ export const NewsDetailPage = () => {
                     className="w-full h-24 object-cover"
                   />
                   <button
-                    onClick={() => openUpdateImagePicker(img.id)}
-                    disabled={isUpdatingImage || isDeletingImage}
-                    className="absolute top-1 left-1 bg-blue-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-70 disabled:cursor-not-allowed"
-                    title="Thay ảnh"
-                  >
-                    {isUpdatingImage && updatingImageId === img.id ? (
-                      <Loader2 size={12} className="animate-spin" />
-                    ) : (
-                      <Pencil size={12} />
-                    )}
-                  </button>
-                  <button
                     onClick={() => deleteImage(img.id)}
-                    disabled={
-                      isUpdatingImage ||
-                      (isDeletingImage && deletingImageId === img.id)
-                    }
+                    disabled={isDeletingImage && deletingImageId === img.id}
                     className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-70 disabled:cursor-not-allowed"
                     title="Xóa ảnh"
                   >
