@@ -5,14 +5,16 @@ import { toast } from "sonner";
 
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
+import { useUpdateProfileMutation } from "../hooks/useUser";
 import {
   UpdateProfileSchema,
   type UpdateProfileSchemaType,
 } from "@/features/employees/schema";
-import { useUpdateProfileMutation } from "@/features/employees/hooks/useUser";
 
 interface Props {
+  /** Object user đã được chuẩn hoá (từ useProfile) */
   userInfo: any;
+  /** Gọi khi cập nhật xong (thường để đóng modal) */
   onSuccess?: () => void;
 }
 

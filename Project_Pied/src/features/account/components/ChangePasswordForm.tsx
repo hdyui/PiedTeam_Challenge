@@ -9,7 +9,11 @@ import {
   ChangePasswordSchema,
   type ChangePasswordTypes,
 } from "@/features/employees/schema";
-import type { Props } from "../type";
+
+interface Props {
+  /** Gọi khi đổi mật khẩu xong (thường để đóng modal) */
+  onSuccess?: () => void;
+}
 
 const ChangePasswordForm = ({ onSuccess }: Props) => {
   const { mutate: changePassword, isPending } = useChangePasswordMutation();

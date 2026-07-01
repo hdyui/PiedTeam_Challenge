@@ -7,6 +7,7 @@ interface Props {
   role?: string;
   fullName: string;
   triggerUpload: (target: UploadTarget) => void;
+  /** Cụm nút hành động (Cập nhật / Đổi mật khẩu / Xoá...) render ở góc phải */
   actions?: ReactNode;
 }
 
@@ -34,6 +35,7 @@ const ProfileHeader = ({
 
   return (
     <>
+      {/* 1. ẢNH BÌA (COVER) */}
       <div className="h-64 sm:h-80 w-full relative group">
         {userInfo?.coverImg ? (
           <img
@@ -45,6 +47,7 @@ const ProfileHeader = ({
           <div className="w-full h-full bg-gradient-to-r from-blue-500 to-primary opacity-80" />
         )}
 
+        {/* Menu Hover Ảnh Bìa */}
         <div
           className="absolute top-4 left-4 bg-black/50 hover:bg-black/70 text-white px-3 py-2 rounded-lg cursor-pointer flex items-center gap-2 transition-all opacity-0 group-hover:opacity-100"
           onClick={() => setActiveMenu(activeMenu === "cover" ? null : "cover")}
@@ -80,6 +83,7 @@ const ProfileHeader = ({
           </div>
         )}
 
+        {/* 2. AVATAR */}
         <div className="absolute -bottom-16 left-8 sm:left-12 group/avatar">
           <div
             className="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 border-white shadow-lg overflow-hidden bg-white relative cursor-pointer flex items-center justify-center text-4xl font-bold text-primary"
@@ -122,6 +126,7 @@ const ProfileHeader = ({
         </div>
       </div>
 
+      {/* 3. KHU TÊN + ACTIONS + QUOTE */}
       <div
         className="pt-20 pb-2 px-8 sm:px-12 relative"
         onClick={() => setActiveMenu(null)}

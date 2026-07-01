@@ -10,7 +10,11 @@ import {
   DialogTrigger,
 } from "@/shared/components/ui/dialog";
 import { useDeleteAccountMutation } from "../hooks/useUser";
-import type { Props } from "../type";
+
+interface Props {
+  /** userId của tài khoản đang đăng nhập */
+  userId?: string;
+}
 
 const DeleteAccountDialog = ({ userId }: Props) => {
   const [open, setOpen] = useState(false);

@@ -54,23 +54,23 @@ export const useLoginMutation = () => {
   return useMutation<AuthResponse, Error, LoginRequest>({
     mutationFn: (data) => authApi.login(data),
     onSuccess: (res) => {
-      const decoded = jwtDecode<JwtPayload>(res.value.accessToken);
-      console.log(decoded);
+      const decoded = jwtDecode<JwtPayload>(res.accessToken);
+      console.log("chưa set thành công");
       setAuth({
-        accessToken: res.value.accessToken,
+        accessToken: res.accessToken,
+        refreshToken: res.refreshToken,
         role: decoded.Role,
       });
+      console.log("đã set thành công rồi nha ");
       toast.success("Đăng nhập thành công");
       console.log(decoded.Role);
+
       if (decoded.Role === "Admin") {
         navigate("/admin", { replace: true });
-        console.log(decoded.Role);
-        if (decoded.Role === "Admin") {
-          navigate("/admin", { replace: true });
-        } else {
-          navigate("/employee");
-        }
+      } else {
+        navigate("/employee");
       }
+      console.log("navigate thành công");
     },
   });
 };
