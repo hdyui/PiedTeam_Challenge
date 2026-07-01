@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useCreateRecruitment, useDepartments } from "../hooks/useRecruitment";
+import { useCreateRecruitment } from "../hooks/useRecruitment";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
@@ -39,7 +39,7 @@ const STATUS_OPTIONS: { label: string; value: RecruitmentStatus }[] = [
 
 interface FormState {
   title: string;
-  departmentId: string;
+  department: string;
   level: RecruitmentLevel | "";
   status: RecruitmentStatus | "";
   jobDescription: string;
@@ -48,7 +48,7 @@ interface FormState {
 
 const INITIAL_FORM: FormState = {
   title: "",
-  departmentId: "",
+  department: "",
   level: "",
   status: "Draft",
   jobDescription: "",
@@ -60,7 +60,7 @@ type FieldError = Partial<Record<keyof FormState, string>>;
 const validate = (form: FormState): FieldError => {
   const errors: FieldError = {};
   if (!form.title.trim()) errors.title = "Tiêu đề là bắt buộc.";
-  if (!form.departmentId.trim()) errors.departmentId = "Phòng ban là bắt buộc.";
+  if (!form.department.trim()) errors.department = "Phòng ban là bắt buộc.";
   if (!form.level) errors.level = "Cấp bậc là bắt buộc.";
   if (!form.status) errors.status = "Trạng thái là bắt buộc.";
   if (!form.jobDescription.trim())
@@ -97,9 +97,6 @@ const RecruitmentCreatePage = () => {
 
   const { mutate: createRecruitment, isPending: isSubmitting } =
     useCreateRecruitment();
-  const { data: departmentsData, isLoading: isLoadingDepartments } =
-    useDepartments();
-  const departments = departmentsData?.value?.items ?? [];
 
   const handleChange = (field: keyof FormState, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -119,7 +116,7 @@ const RecruitmentCreatePage = () => {
     createRecruitment(
       {
         title: form.title,
-        departmentId: form.departmentId,
+        department: form.department,
         level: form.level as RecruitmentLevel,
         status: form.status as RecruitmentStatus,
         jobDescription: form.jobDescription,
@@ -183,32 +180,14 @@ const RecruitmentCreatePage = () => {
               <FieldWrapper
                 label="Phòng ban"
                 required
-                error={errors.departmentId}
+                error={errors.department}
               >
-                <Select
-                  value={form.departmentId}
-                  onValueChange={(v) => handleChange("departmentId", v)}
-                  disabled={isLoadingDepartments}
-                >
-                  <SelectTrigger
-                    className={`border-gray-200 ${errors.departmentId ? "border-red-300" : ""}`}
-                  >
-                    <SelectValue
-                      placeholder={
-                        isLoadingDepartments
-                          ? "Đang tải phòng ban..."
-                          : "Chọn phòng ban"
-                      }
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {departments.map((dept) => (
-                      <SelectItem key={dept.id} value={dept.id}>
-                        {dept.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Input
+                  placeholder="vd: Kỹ thuật"
+                  value={form.department}
+                  onChange={(e) => handleChange("department", e.target.value)}
+                  className={`border-gray-200 focus-visible:ring-indigo-500 ${errors.department ? "border-red-300 focus-visible:ring-red-400" : ""}`}
+                />
               </FieldWrapper>
 
               <FieldWrapper label="Cấp bậc" required error={errors.level}>

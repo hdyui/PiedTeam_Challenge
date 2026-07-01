@@ -2,7 +2,6 @@ import apiClient from "@/lib/axios";
 import type { ApiResponse, PaginatedResponse } from "@/shared/types/types";
 import type {
   CreateRecruitmentPayload,
-  Department,
   PublicRecruitmentDetail,
   PublicRecruitmentItem,
   PublicRecruitmentQueryParams,
@@ -12,13 +11,6 @@ import type {
 
 // ─── GET /public/recruitments ────────────────────────────────────────────────
 export const publicApi = {
-  // ─── GET /departments ─────────────────────────────────────────────────────────
-  async getDepartments(): Promise<ApiResponse<PaginatedResponse<Department>>> {
-    return apiClient.get("/departments") as unknown as Promise<
-      ApiResponse<PaginatedResponse<Department>>
-    >;
-  },
-
   async getRecruitmentList(
     params?: PublicRecruitmentQueryParams,
   ): Promise<ApiResponse<PaginatedResponse<PublicRecruitmentItem>>> {

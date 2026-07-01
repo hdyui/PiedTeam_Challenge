@@ -46,7 +46,7 @@ export interface PublicRecruitmentQueryParams {
 
 export interface RecruitmentPayload {
   title: string;
-  departmentId: string;
+  department: string;
   level: RecruitmentLevel;
   status: RecruitmentStatus;
   jobDescription: string;

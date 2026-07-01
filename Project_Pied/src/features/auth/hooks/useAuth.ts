@@ -59,8 +59,11 @@ export const useLoginMutation = () => {
       console.log(decoded.Role);
       if (decoded.Role === "Admin") {
         navigate("/admin", { replace: true });
-      } else {
-        navigate("/employee");
+        if (decoded.Role === "Admin") {
+          navigate("/admin", { replace: true });
+        } else {
+          navigate("/employee");
+        }
       }
     },
   });

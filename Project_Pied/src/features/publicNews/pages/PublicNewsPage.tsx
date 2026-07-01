@@ -19,6 +19,8 @@ const PublicNewsPage = () => {
     limit,
     search: debouncedSearch,
   });
+
+  // Reset về trang 1 khi thay đổi từ khóa tìm kiếm
   useEffect(() => {
     setPage(1);
   }, [debouncedSearch]);
@@ -34,6 +36,8 @@ const PublicNewsPage = () => {
         totalPages,
       }
     : null;
+
+  // ─── Render Handlers ────────────────────────────────────────────────────────
   if (isError) {
     return (
       <div className="flex justify-center items-center h-64 text-red-500">
@@ -109,21 +113,21 @@ const PublicNewsPage = () => {
       )}
 
       {/* ─── Pagination ─── */}
-      {totalPages > 0 && (
-        <div className="flex justify-center items-center mt-10 space-x-2">
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center mt-10 space-x-4">
           <button
             onClick={() => setPage((old) => Math.max(old - 1, 1))}
             disabled={!data?.value?.hasPreviousPage}
-            className={`px-4 py-2 rounded-lg text-sm font-medium border ${
+            className={`px-4 py-2 rounded-lg font-medium ${
               !data?.value?.hasPreviousPage
-                ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
-                : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
+                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-700"
             }`}
           >
-            Trước
+            Trang trước
           </button>
 
-          <span className="text-sm font-medium px-4">
+          <span className="text-gray-700 font-medium">
             Trang {data?.value?.pageIndex} / {totalPages}
           </span>
 
@@ -132,13 +136,13 @@ const PublicNewsPage = () => {
               setPage((old) => (data?.value?.hasNextPage ? old + 1 : old))
             }
             disabled={!data?.value?.hasNextPage}
-            className={`px-4 py-2 rounded-lg text-sm font-medium border ${
+            className={`px-4 py-2 rounded-lg font-medium ${
               !data?.value?.hasNextPage
-                ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
-                : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
+                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-700"
             }`}
           >
-            Sau
+            Trang sau
           </button>
         </div>
       )}

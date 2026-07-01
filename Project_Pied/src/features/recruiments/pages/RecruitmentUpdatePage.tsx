@@ -4,7 +4,6 @@ import {
   useDeleteRecruitment,
   usePublicRecruitmentDetail,
   useUpdateRecruitment,
-  useDepartments,
 } from "../hooks/useRecruitment";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -62,7 +61,7 @@ const STATUS_OPTIONS: { label: string; value: RecruitmentStatus }[] = [
 
 interface FormState {
   title: string;
-  departmentId: string;
+  department: string;
   level: RecruitmentLevel | "";
   status: RecruitmentStatus | "";
   jobDescription: string;
@@ -74,7 +73,7 @@ type FieldError = Partial<Record<keyof FormState, string>>;
 const validate = (form: FormState): FieldError => {
   const errors: FieldError = {};
   if (!form.title.trim()) errors.title = "Tiêu đề là bắt buộc.";
-  if (!form.departmentId.trim()) errors.departmentId = "Phòng ban là bắt buộc.";
+  if (!form.department.trim()) errors.department = "Phòng ban là bắt buộc.";
   if (!form.level) errors.level = "Cấp bậc là bắt buộc.";
   if (!form.status) errors.status = "Trạng thái là bắt buộc.";
   if (!form.jobDescription.trim())
@@ -124,13 +123,10 @@ const RecruitmentUpdatePage = () => {
     useUpdateRecruitment();
   const { mutate: deleteRecruitment, isPending: isDeleting } =
     useDeleteRecruitment();
-  const { data: departmentsData, isLoading: isLoadingDepartments } =
-    useDepartments();
-  const departments = departmentsData?.value?.items ?? [];
 
   const [form, setForm] = useState<FormState>({
     title: "",
-    departmentId: "",
+    department: "",
     level: "",
     status: "",
     jobDescription: "",
@@ -142,13 +138,13 @@ const RecruitmentUpdatePage = () => {
   // Populate form once detail loads
   useEffect(() => {
     if (detail) {
-      const departmentId =
+      const deptName =
         typeof detail.department === "object"
-          ? (detail.department as { id: string })?.id
+          ? (detail.department as { name: string })?.name
           : detail.department;
       setForm({
         title: detail.title,
-        departmentId,
+        department: deptName,
         level: detail.level,
         status: (detail.status as RecruitmentStatus) || "",
         jobDescription: detail.jobDescription,
@@ -177,7 +173,7 @@ const RecruitmentUpdatePage = () => {
       {
         id,
         title: form.title,
-        departmentId: form.departmentId,
+        department: form.department,
         level: form.level as RecruitmentLevel,
         status: form.status as RecruitmentStatus,
         jobDescription: form.jobDescription,
@@ -308,32 +304,16 @@ const RecruitmentUpdatePage = () => {
                   <FieldWrapper
                     label="Phòng ban"
                     required
-                    error={errors.departmentId}
+                    error={errors.department}
                   >
-                    <Select
-                      value={form.departmentId}
-                      onValueChange={(v) => handleChange("departmentId", v)}
-                      disabled={isLoadingDepartments}
-                    >
-                      <SelectTrigger
-                        className={`border-gray-200 ${errors.departmentId ? "border-red-300" : ""}`}
-                      >
-                        <SelectValue
-                          placeholder={
-                            isLoadingDepartments
-                              ? "Đang tải phòng ban..."
-                              : "Chọn phòng ban"
-                          }
-                        />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {departments.map((dept) => (
-                          <SelectItem key={dept.id} value={dept.id}>
-                            {dept.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Input
+                      placeholder="vd: Kỹ thuật"
+                      value={form.department}
+                      onChange={(e) =>
+                        handleChange("department", e.target.value)
+                      }
+                      className={`border-gray-200 focus-visible:ring-indigo-500 ${errors.department ? "border-red-300 focus-visible:ring-red-400" : ""}`}
+                    />
                   </FieldWrapper>
 
                   <FieldWrapper label="Cấp bậc" required error={errors.level}>
