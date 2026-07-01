@@ -16,10 +16,8 @@ export const useAuthStore = create<AuthState & AuthActions>()(
   devtools(
     persist(
       (set) => ({
-        // Initial state
         accessToken: null,
         role: null,
-
         // Actions
         setAuth: ({ accessToken, role }) => set({ accessToken, role }),
         clearAuth: () => set({ accessToken: null, role: null }),

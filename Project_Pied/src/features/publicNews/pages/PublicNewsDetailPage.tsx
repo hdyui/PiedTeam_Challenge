@@ -10,7 +10,9 @@ const PublicNewsDetailPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const { data, isLoading, isError } = usePublicNewsDetail(slug ?? "");
 
-  const news = data?.value;
+  const rawData = data as any;
+
+  const news = rawData?.value || [];
 
   // ─── Error ───────────────────────────────────────────────────────────────────
   if (isError) {

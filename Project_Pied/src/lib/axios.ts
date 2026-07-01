@@ -9,16 +9,23 @@ import { toast } from "sonner";
 // Create instance
 const apiClient = axios.create({
   baseURL: env.API_URL, // Nhớ config .env, config biến môi trường
-  headers: {
-    "Content-Type": "application/json",
-  },
-  timeout: 15_000, // 15s timeout
+  // timeout: 15_000, // 15s timeout
   withCredentials: true, // gửi - nhận cookie nếu có (dùng cho auth)
 });
 
 //Request Interceptor: Attach Token: tự động thêm token vào header Authorization nếu có
 apiClient.interceptors.request.use(
   (config) => {
+    if (config.data instanceof FormData) {
+      const headers = config.headers as any;
+      if (typeof headers.delete === "function") {
+        headers.delete("Content-Type");
+      } else {
+        delete headers["Content-Type"];
+        delete headers["content-type"];
+      }
+    }
+
     const accessToken = useAuthStore.getState().accessToken; // lấy token từ auth store
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
@@ -50,9 +57,10 @@ apiClient.interceptors.response.use(
     // Tuy nhiên, để linh hoạt, ta có thể trả về response.data
     // để giảm bớt số lần phải destructure ở component
     // nhưng vẫn giữ được khả năng truy cập các trường khác nếu cần
-    return response.data?.data !== undefined
-      ? response.data.data
-      : response.data;
+    const body = response;
+    if (body?.value !== undefined) return body.value;
+    if (body?.data !== undefined) return body.data;
+    return body;
   },
   async (error) => {
     const originalRequest = error.config; // lấy api trước đó đã gọi để có thể retry nếu cần

@@ -15,7 +15,18 @@ import { useLogoutMutation } from "@/features/auth/hooks/useAuth";
 
 const navItems = [
   { to: "/admin", label: "Dashboard", icon: Home, end: true },
-  { to: "/admin/employees", label: "Employees", icon: Users, end: false },
+  {
+    to: "/admin/accounts",
+    label: "Employee Accounts",
+    icon: Users,
+    end: false,
+  },
+  {
+    to: "/admin/departments", // <-- Thêm menu Departments vào đây
+    label: "Departments",
+    icon: Building2,
+    end: false,
+  },
   { to: "/admin/news", label: "News", icon: Newspaper, end: false },
   {
     to: "/admin/recruitments",

@@ -5,13 +5,8 @@ import MainLayout from "@/shared/layouts/MainLayout";
 
 import { HomePage } from "@/features/auth/pages/HomePage";
 import { LoginPage } from "@/features/auth/pages/LoginPage";
-import { RegisterPage } from "@/features/auth/pages/RegisterPage";
 
-import EmployeeListPage from "@/features/employees/pages/EmployeeListPage";
-import EmployeeCreatePage from "@/features/employees/pages/EmployeeCreatePage";
-import EmployeeDetailPage from "@/features/employees/pages/EmployeeDetailPage";
-import EmployeeEditPage from "@/features/employees/pages/EmployeeEditPage";
-import AdminMainLayout from "@/shared/layouts/AdminMainLayout";
+// --- ADMIN & EMPLOYEE (QUẢN LÝ) ---
 
 // ─── News ────────────────────────────────────────────────────────────────────
 import {
@@ -29,9 +24,18 @@ import RecruitmentUpdatePage from "@/features/recruiments/pages/RecruitmentUpdat
 import RecruitmentDetailsPPage from "@/features/recruiments/pages/RecruitmentDetails";
 import PublicRecruitmentPage from "@/features/recruiments/pages/PublicRecruitmentPage";
 import PublicRecruitmentDetailPage from "@/features/recruiments/pages/PublicRecruitmentDetailsPage";
+import { AccountListPage } from "@/features/employees/pages/AccountListPage";
+import { AccountCreatePage } from "@/features/employees/pages/AccountCreatePage";
+import { AccountEditPage } from "@/features/employees/pages/AccountEditPage";
+import AccountDetailPage from "@/features/employees/pages/AccountDetailPage";
+import { DepartmentListPage } from "@/features/departments/pages/DepartmentListPage";
+import { DepartmentCreatePage } from "@/features/departments/pages/DepartmentCreatePage";
+import { DepartmentEditPage } from "@/features/departments/pages/DepartmentEditPage";
+import { DepartmentDetailPage } from "@/features/departments/pages/DepartmentDetailPage";
+import ProfilePage from "@/features/account/pages/ProfilePage";
+import EmployeeLayout from "@/features/employees/components/layout/EmployeeProfileLayout";
 
 export const router = createBrowserRouter([
-  // --- PUBLIC & USER ROUTES ---
   {
     path: "/",
     element: <MainLayout />,
@@ -43,10 +47,7 @@ export const router = createBrowserRouter([
       { path: "recruitments/:id", element: <PublicRecruitmentDetailPage /> },
       {
         element: <RequireUnAuth />,
-        children: [
-          { path: "login", element: <LoginPage /> },
-          { path: "register", element: <RegisterPage /> },
-        ],
+        children: [{ path: "login", element: <LoginPage /> }],
       },
     ],
   },
@@ -62,10 +63,16 @@ export const router = createBrowserRouter([
           { index: true, element: <AdminDashboardPage /> },
 
           // Employees
-          { path: "employees", element: <EmployeeListPage /> },
-          { path: "employees/create", element: <EmployeeCreatePage /> },
-          { path: "employees/update/:id", element: <EmployeeEditPage /> },
-          { path: "employees/:id", element: <EmployeeDetailPage /> },
+          { path: "accounts", element: <AccountListPage /> },
+          { path: "accounts/create", element: <AccountCreatePage /> },
+          { path: "accounts/update/:id", element: <AccountEditPage /> },
+          { path: "accounts/:id", element: <AccountDetailPage /> },
+
+          // Departments
+          { path: "departments", element: <DepartmentListPage /> },
+          { path: "departments/create", element: <DepartmentCreatePage /> },
+          { path: "departments/update/:id", element: <DepartmentEditPage /> },
+          { path: "departments/:id", element: <DepartmentDetailPage /> },
 
           // News
           { path: "news", element: <NewsListPage /> },
@@ -98,17 +105,17 @@ export const router = createBrowserRouter([
     element: <RequireAuth allowedRoles={["Employee"]} />,
     children: [
       {
-        element: <MainLayout />,
         children: [
-          { index: true, element: <div>Trang hiển thị profile nhân viên</div> },
           {
-            path: "profile",
-            element: <div>Trang hiển thị profile nhân viên</div>,
+            element: <EmployeeProfileLayout />, // <-- Lớp vỏ thứ hai: Menu doc
+            children: [
+              // Bác thấy chưa? Cùng là <ProfilePage/> nhưng lại được nhét ở đây!
+              { index: true, element: <ProfilePage /> },
+              // { path: "profile/change-password", element: <ChangePasswordPage /> },
+            ],
           },
-          {
-            path: "profile/update",
-            element: <div>Trang cập nhật profile nhân viên</div>,
-          },
+          { path: "profile", element: <ProfilePage /> },
+          // { path: "profile/change-password", element: <ChangePasswordPage /> },
         ],
       },
     ],
