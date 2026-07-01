@@ -61,7 +61,7 @@ const STATUS_OPTIONS: { label: string; value: RecruitmentStatus }[] = [
 
 interface FormState {
   title: string;
-  department: string;
+  departmentId: string;
   level: RecruitmentLevel | "";
   status: RecruitmentStatus | "";
   jobDescription: string;
@@ -73,7 +73,7 @@ type FieldError = Partial<Record<keyof FormState, string>>;
 const validate = (form: FormState): FieldError => {
   const errors: FieldError = {};
   if (!form.title.trim()) errors.title = "Tiêu đề là bắt buộc.";
-  if (!form.department.trim()) errors.department = "Phòng ban là bắt buộc.";
+  if (!form.departmentId.trim()) errors.departmentId = "Phòng ban là bắt buộc.";
   if (!form.level) errors.level = "Cấp bậc là bắt buộc.";
   if (!form.status) errors.status = "Trạng thái là bắt buộc.";
   if (!form.jobDescription.trim())
@@ -126,7 +126,7 @@ const RecruitmentUpdatePage = () => {
 
   const [form, setForm] = useState<FormState>({
     title: "",
-    department: "",
+    departmentId: "",
     level: "",
     status: "",
     jobDescription: "",
@@ -138,13 +138,13 @@ const RecruitmentUpdatePage = () => {
   // Populate form once detail loads
   useEffect(() => {
     if (detail) {
-      const deptName =
+      const departmentId =
         typeof detail.department === "object"
-          ? (detail.department as { name: string })?.name
+          ? (detail.department as { id: string })?.id
           : detail.department;
       setForm({
         title: detail.title,
-        department: deptName,
+        departmentId,
         level: detail.level,
         status: (detail.status as RecruitmentStatus) || "",
         jobDescription: detail.jobDescription,
@@ -173,7 +173,7 @@ const RecruitmentUpdatePage = () => {
       {
         id,
         title: form.title,
-        department: form.department,
+        departmentId: form.departmentId,
         level: form.level as RecruitmentLevel,
         status: form.status as RecruitmentStatus,
         jobDescription: form.jobDescription,
@@ -304,15 +304,15 @@ const RecruitmentUpdatePage = () => {
                   <FieldWrapper
                     label="Phòng ban"
                     required
-                    error={errors.department}
+                    error={errors.departmentId}
                   >
                     <Input
-                      placeholder="vd: Kỹ thuật"
-                      value={form.department}
+                      placeholder="ID phòng ban"
+                      value={form.departmentId}
                       onChange={(e) =>
-                        handleChange("department", e.target.value)
+                        handleChange("departmentId", e.target.value)
                       }
-                      className={`border-gray-200 focus-visible:ring-indigo-500 ${errors.department ? "border-red-300 focus-visible:ring-red-400" : ""}`}
+                      className={`border-gray-200 focus-visible:ring-indigo-500 ${errors.departmentId ? "border-red-300 focus-visible:ring-red-400" : ""}`}
                     />
                   </FieldWrapper>
 
