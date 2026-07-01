@@ -17,7 +17,6 @@ import { useLogoutMutation, useUser } from "@/features/auth/hooks/useAuth";
 
 const navItems = [
   { to: "/admin", label: "Dashboard", icon: Home, end: true },
-  { to: "/admin/employees", label: "Employees", icon: Users, end: false },
   {
     to: "/admin/accounts",
     label: "Employee Accounts",

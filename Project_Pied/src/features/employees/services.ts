@@ -31,12 +31,18 @@ export const userApi = {
     console.log("Sự thật về biến res:", res);
     return res;
   },
+  getUserById: async (userId: string) => {
+    const res = await apiClient.get(`/users/${userId}`);
+    return res as any;
+  },
 
-  // src/features/accounts/services.ts
+  deleteUser: async (userId: string) => {
+    const res = await apiClient.delete(`/users/${userId}`);
+    return res as any;
+  },
 };
 
 export const accountApi = {
-  // 1. Lấy danh sách Account (Có phân trang & search)
   getAccounts: async (params: {
     page?: number;
     pageSize?: number;
@@ -45,23 +51,17 @@ export const accountApi = {
     status?: string;
   }) => {
     const res = await apiClient.get("/accounts", { params });
-    // Tùy theo Interceptor bác cài, có thể là res.data hoặc res.value
     return res;
   },
 
-  // 2. Lấy chi tiết 1 Account
   getAccountById: async (accountId: string) => {
     const res = await apiClient.get(`/accounts/${accountId}`);
     return res as any;
   },
 
-  // 3. Tạo mới Account (Gửi FormData vì có kèm File ảnh)
-  // 3. Tạo mới Account (Gửi BẰNG FORMDATA chuẩn Swagger)
-  // 3. Tạo mới Account (Chốt hạ: FormData + Ép Header Multipart)
   createAccount: async (data: CreateAccountFormValues) => {
     const formData = new FormData();
 
-    // Ép đúng chuẩn viết hoa chữ cái đầu (PascalCase) theo Swagger
     formData.append("Email", data.email);
     formData.append("Password", data.password);
     formData.append("Role", data.role);
@@ -78,7 +78,6 @@ export const accountApi = {
     if (data.avatarImg?.[0]) formData.append("AvatarImg", data.avatarImg[0]);
     if (data.coverImg?.[0]) formData.append("CoverImg", data.coverImg[0]);
 
-    // ÉP BUỘC HEADER MULTIPART Ở ĐÂY! KHÔNG ĐỂ API CLIENT TỰ BIÊN TỰ DIỄN NỮA!
     const res = await apiClient.post("/accounts", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
@@ -93,7 +92,6 @@ export const accountApi = {
     return res as any;
   },
 
-  // 5. Reset Mật khẩu (Gửi JSON)
   resetPassword: async (accountId: string, data: ResetPasswordFormValues) => {
     const res = await apiClient.put(
       `/accounts/${accountId}/reset-password`,
@@ -102,7 +100,6 @@ export const accountApi = {
     return res as any;
   },
 
-  // 6. Xóa (Soft Delete) Account
   deleteAccount: async (accountId: string) => {
     const res = await apiClient.delete(`/accounts/${accountId}`);
     return res as any; // Trả về 204 No Content
