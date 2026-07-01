@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useCreateRecruitment } from "../hooks/useRecruitment";
+import { useCreateRecruitment, useDepartments } from "../hooks/useRecruitment";
 import { useDepartmentList } from "@/features/departments/hooks/useDepartment";
 import type { DepartmentListItem } from "@/features/departments/types";
 import { Button } from "@/shared/components/ui/button";
@@ -99,14 +99,9 @@ const RecruitmentCreatePage = () => {
 
   const { mutate: createRecruitment, isPending: isSubmitting } =
     useCreateRecruitment();
-  const { data: departmentData, isLoading: isLoadingDepartments } =
-    useDepartmentList({
-      page: 1,
-      pageSize: 100,
-      isActive: true,
-    });
-
-  const departments: DepartmentListItem[] = departmentData?.value?.items ?? [];
+  const { data: departmentsData, isLoading: isLoadingDepartments } =
+    useDepartments();
+  const departments = departmentsData?.value?.items ?? [];
 
   const handleChange = (field: keyof FormState, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -209,9 +204,9 @@ const RecruitmentCreatePage = () => {
                     />
                   </SelectTrigger>
                   <SelectContent>
-                    {departments.map((department) => (
-                      <SelectItem key={department.id} value={department.id}>
-                        {department.name}
+                    {departments.map((dept) => (
+                      <SelectItem key={dept.id} value={dept.id}>
+                        {dept.name}
                       </SelectItem>
                     ))}
                   </SelectContent>

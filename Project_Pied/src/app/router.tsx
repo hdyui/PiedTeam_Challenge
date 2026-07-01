@@ -125,9 +125,7 @@ export const router = createBrowserRouter([
         // element: <MainLayout />, // <-- Lớp vỏ thứ nhất: Header chung
         element: <EmployeeProfileLayout />, // Tạm dùng MainLayout, nếu có EmployeeLayout riêng thì thay vào
         children: [
-          { index: true, element: <div>Trang Dashboard Employee</div> },
-
-          // KHU VỰC CÁ NHÂN CỦA NHÂN VIÊN (Có menu dọc bên trái)
+          { index: true, element: <div>Trang hiển thị profile nhân viên</div> },
           {
             element: <EmployeeProfileLayout />, // <-- Lớp vỏ thứ hai: Menu doc
             children: [

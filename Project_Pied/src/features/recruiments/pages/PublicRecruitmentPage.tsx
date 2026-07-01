@@ -16,8 +16,6 @@ import {
 import {
   BriefcaseBusiness,
   Building2,
-  ChevronLeft,
-  ChevronRight,
   Search,
   TrendingUp,
   CalendarDays,
@@ -353,29 +351,27 @@ const PublicRecruitmentPage = () => {
 
         {/* Pagination — always visible */}
         {!isLoading && (
-          <div className="flex items-center justify-center gap-4 pt-4">
+          <div className="flex items-center justify-center space-x-2 pt-4">
             <Button
               variant="outline"
-              size="sm"
               onClick={() => handlePageChange(page - 1)}
               disabled={page <= 1}
-              className="h-9 w-9 p-0 border-gray-200 rounded-xl"
+              className="border-gray-200 rounded-xl"
             >
-              <ChevronLeft className="h-4 w-4" />
+              Trước
             </Button>
 
-            <span className="text-sm font-medium text-gray-600 tabular-nums">
+            <span className="text-sm font-medium px-4">
               Trang {page} / {totalPages}
             </span>
 
             <Button
               variant="outline"
-              size="sm"
               onClick={() => handlePageChange(page + 1)}
               disabled={page >= totalPages}
-              className="h-9 w-9 p-0 border-gray-200 rounded-xl"
+              className="border-gray-200 rounded-xl"
             >
-              <ChevronRight className="h-4 w-4" />
+              Sau
             </Button>
           </div>
         )}

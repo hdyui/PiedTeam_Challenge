@@ -4,6 +4,7 @@ import {
   useDeleteRecruitment,
   usePublicRecruitmentDetail,
   useUpdateRecruitment,
+  useDepartments,
 } from "../hooks/useRecruitment";
 import { useDepartmentList } from "@/features/departments/hooks/useDepartment";
 import type { DepartmentListItem } from "@/features/departments/types";
@@ -125,14 +126,9 @@ const RecruitmentUpdatePage = () => {
     useUpdateRecruitment();
   const { mutate: deleteRecruitment, isPending: isDeleting } =
     useDeleteRecruitment();
-  const { data: departmentData, isLoading: isLoadingDepartments } =
-    useDepartmentList({
-      page: 1,
-      pageSize: 100,
-      isActive: true,
-    });
-
-  const departments: DepartmentListItem[] = departmentData?.value?.items ?? [];
+  const { data: departmentsData, isLoading: isLoadingDepartments } =
+    useDepartments();
+  const departments = departmentsData?.value?.items ?? [];
 
   const [form, setForm] = useState<FormState>({
     title: "",
@@ -148,10 +144,13 @@ const RecruitmentUpdatePage = () => {
   // Populate form once detail loads
   useEffect(() => {
     if (detail) {
+      const departmentId =
+        typeof detail.department === "object"
+          ? (detail.department as { id: string })?.id
+          : detail.department;
       setForm({
         title: detail.title,
-        departmentId:
-          typeof detail.department === "object" ? detail.department.id : "",
+        departmentId,
         level: detail.level,
         status: (detail.status as RecruitmentStatus) || "",
         jobDescription: detail.jobDescription,
@@ -330,9 +329,9 @@ const RecruitmentUpdatePage = () => {
                         />
                       </SelectTrigger>
                       <SelectContent>
-                        {departments.map((department) => (
-                          <SelectItem key={department.id} value={department.id}>
-                            {department.name}
+                        {departments.map((dept) => (
+                          <SelectItem key={dept.id} value={dept.id}>
+                            {dept.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
