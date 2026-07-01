@@ -12,9 +12,7 @@ import {
 } from "@/features/employees/schema";
 
 interface Props {
-  /** Object user đã được chuẩn hoá (từ useProfile) */
   userInfo: any;
-  /** Gọi khi cập nhật xong (thường để đóng modal) */
   onSuccess?: () => void;
 }
 

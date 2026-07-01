@@ -2,21 +2,15 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
-import { useAuthStore } from "@/features/auth/store"; // ⚠️ chỉnh path store cho đúng project của bạn
+import { useAuthStore } from "@/features/auth/store";
 import { queryClient } from "@/lib/queryClient";
 import type { UpdateProfileRequest } from "@/features/employees/type";
 import { userApi } from "@/features/employees/services";
 
-/**
- * BƯỚC 2 của flow: sau khi getMe có userId -> gọi GET /users/{userId}
- * lấy thông tin CHI TIẾT (departments, createdAt, account...).
- * enabled: chỉ chạy khi đã có userId.
- */
 export const useUserDetailQuery = (userId?: string) => {
   return useQuery({
     queryKey: ["user", userId],
     queryFn: () => userApi.getUserById(userId as string),
-    enabled: !!userId, // chưa có userId thì chưa gọi
   });
 };
 
@@ -34,7 +28,6 @@ export const useUpdateProfileMutation = () => {
     },
     onSuccess: () => {
       toast.success("Cập nhật hồ sơ thành công!");
-      // Làm mới cả getMe (["me"]) lẫn chi tiết user (["user"]) để UI tự cập nhật
       qc.invalidateQueries({ queryKey: ["me"] });
       qc.invalidateQueries({ queryKey: ["user"] });
     },
@@ -53,13 +46,6 @@ export const useUploadMutation = () => {
   });
 };
 
-/**
- * Xoá tài khoản của CHÍNH user đang đăng nhập (self-delete).
- * Sau khi xoá thành công -> clear token + xoá cache + đá về /login.
- *
- * ⚠️ ENDPOINT: mặc định DELETE /users/{userId}. Nếu BE xoá theo accountId
- * thì đổi userApi.deleteUser -> accountApi.deleteAccount(accountId).
- */
 export const useDeleteAccountMutation = () => {
   const navigate = useNavigate();
   const clearAuth = useAuthStore((state) => state.clearAuth);

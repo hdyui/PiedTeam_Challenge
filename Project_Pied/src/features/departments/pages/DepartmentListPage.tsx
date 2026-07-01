@@ -133,8 +133,10 @@ export const DepartmentListPage = () => {
       ),
     },
   ];
+  const rawData = data as any;
 
-  const items = data?.value?.items ?? [];
+  const items =
+    rawData?.value?.items || rawData?.data?.items || rawData?.items || [];
   const pagination = data?.value ? { totalPages: data.value.totalPages } : null;
 
   return (

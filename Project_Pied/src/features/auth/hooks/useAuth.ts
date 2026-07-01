@@ -42,23 +42,17 @@ export const useRegisterMutation = () => {
 };
 
 export const useLoginMutation = () => {
-  const location = useLocation();
-
-  const from =
-    (location.state as { from?: { pathname: string } })?.from?.pathname ?? "/";
-
   const navigate = useNavigate();
-
   const setAuth = useAuthStore((state) => state.setAuth);
-
   return useMutation<AuthResponse, Error, LoginRequest>({
     mutationFn: (data) => authApi.login(data),
     onSuccess: (res) => {
-      const decoded = jwtDecode<JwtPayload>(res.accessToken);
+      console.log("hi");
+      const decoded = jwtDecode<JwtPayload>(res.value.accessToken);
+      console.log(decoded);
       console.log("chưa set thành công");
       setAuth({
-        accessToken: res.accessToken,
-        refreshToken: res.refreshToken,
+        accessToken: res.value.accessToken,
         role: decoded.Role,
       });
       console.log("đã set thành công rồi nha ");

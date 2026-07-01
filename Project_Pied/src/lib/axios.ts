@@ -3,17 +3,29 @@ import axios from "axios";
 import { env } from "./env";
 import { toast } from "sonner";
 
+// apiClient là một "phiên bản" HTTP Client đã được cấu hình sẵn các thông số mặc định
+// như baseURL, headers, timeout,... để tái sử dụng trong toàn bộ ứng dụng khi gọi API
+
+// Create instance
 const apiClient = axios.create({
   baseURL: env.API_URL, // Nhớ config .env, config biến môi trường
-  headers: {
-    "Content-Type": "application/json",
-  },
   // timeout: 15_000, // 15s timeout
-  // withCredentials: true, // gửi - nhận cookie nếu có (dùng cho auth)
+  withCredentials: true, // gửi - nhận cookie nếu có (dùng cho auth)
 });
 
+//Request Interceptor: Attach Token: tự động thêm token vào header Authorization nếu có
 apiClient.interceptors.request.use(
   (config) => {
+    if (config.data instanceof FormData) {
+      const headers = config.headers as any;
+      if (typeof headers.delete === "function") {
+        headers.delete("Content-Type");
+      } else {
+        delete headers["Content-Type"];
+        delete headers["content-type"];
+      }
+    }
+
     const accessToken = useAuthStore.getState().accessToken; // lấy token từ auth store
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
@@ -37,13 +49,18 @@ const processQueue = (error: unknown, token: string | null) => {
   failedQueue = [];
 };
 
+//Response Interceptor: Xử lý lỗi chung, ví dụ 401 Unauthorized thì có thể tự động logout
 apiClient.interceptors.response.use(
   (response) => {
-    return response.data?.value !== undefined
-      ? response.data.value
-      : response.data?.data !== undefined
-        ? response.data.data
-        : response.data;
+    // Phase 3: C1: return data trực tiếp
+    // Component sẽ nhận được user thay vì { data: { user } }
+    // Tuy nhiên, để linh hoạt, ta có thể trả về response.data
+    // để giảm bớt số lần phải destructure ở component
+    // nhưng vẫn giữ được khả năng truy cập các trường khác nếu cần
+    const body = response;
+    if (body?.value !== undefined) return body.value;
+    if (body?.data !== undefined) return body.data;
+    return body;
   },
   async (error) => {
     const originalRequest = error.config; // lấy api trước đó đã gọi để có thể retry nếu cần
@@ -52,6 +69,8 @@ apiClient.interceptors.response.use(
     const is401 = error.response?.status === 401;
     const notRetriedYet = !originalRequest._retry;
 
+    // const status = error.response?.status; // lấy status code để xử lý theo từng trường hợp
+    // VD: nếu lỗi 401 Unauthorized, có thể do token hết hạn
     if (is401 && notAuthReqs && notRetriedYet) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
@@ -61,47 +80,38 @@ apiClient.interceptors.response.use(
           return apiClient(originalRequest);
         });
       }
+
       originalRequest._retry = true; // đứng đầu hàng đợi khi lỗi
       isRefreshing = true;
 
       try {
-        // 1. Lấy refreshToken từ store
-        const refreshToken = useAuthStore.getState().refreshToken;
-
-        if (!refreshToken) {
-          throw new Error("Không tìm thấy Refresh Token");
-        }
-
-        // 2. Gọi API xin token mới
+        // const refreshToken = useAuthStore.getState().refreshToken;
+        // if (!refreshToken) throw new Error("No refresh token");
+        // 1. Gọi API xin token mới
+        // ⚠️ Dùng axios thường để tránh dính interceptor của apiClient
         const res = await axios.post(
-          `${env.API_URL}auth/refresh-token`,
-          { refreshToken: refreshToken },
-          { headers: { "Content-Type": "application/json" } },
+          `${env.API_URL}auth/refresh`,
+          {},
+          {
+            withCredentials: true, // gửi cookie nếu cần
+          },
         );
 
-        // 3. Khai báo và lấy Access Token mới
         const newToken: string =
-          res.data?.data?.accessToken ??
-          res.data?.value?.accessToken ??
-          res.data?.accessToken;
+          res.data?.data?.accessToken ?? res.data?.accessToken;
 
-        // 4. Khai báo và lấy Refresh Token mới (Nếu BE ko trả về thì lấy lại cái cũ)
-        const newRefreshToken: string =
-          res.data?.data?.refreshToken ??
-          res.data?.value?.refreshToken ??
-          res.data?.refreshToken ??
-          refreshToken;
-
-        // 5. Cập nhật vào store (Lúc này newRefreshToken đã được khai báo ở trên nên gọi vô tư)
+        // const { accessToken } = response.data; // giả sử BE trả về { data: { accessToken }
+        // Cập nhật token mới vào auth store, chỉ cần cập nhật accessToken, refreshToken thường k đổi
         useAuthStore.getState().setAuth({
           accessToken: newToken,
-          refreshToken: newRefreshToken,
           role: useAuthStore.getState().role,
-        });
+        }); // cập nhật token mới vào store
 
         processQueue(null, newToken);
 
+        // Update header Authorization của request gốc với token mới
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        // 2. Retry lại request gốc với token mới
         return apiClient(originalRequest);
       } catch (refreshError) {
         // Nếu refresh cũng fail → Logout luôn
