@@ -100,7 +100,7 @@ export const router = createBrowserRouter([
       {
         element: <MainLayout />,
         children: [
-          { index: true, element: <div>Trang dashboard của nhân viên</div> },
+          { index: true, element: <div>Trang hiển thị profile nhân viên</div> },
           {
             path: "profile",
             element: <div>Trang hiển thị profile nhân viên</div>,

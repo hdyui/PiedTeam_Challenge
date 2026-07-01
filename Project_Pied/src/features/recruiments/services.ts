@@ -13,9 +13,9 @@ import type {
 // ─── GET /public/recruitments ────────────────────────────────────────────────
 export const publicApi = {
   // ─── GET /departments ─────────────────────────────────────────────────────────
-  async getDepartments(): Promise<ApiResponse<Department[]>> {
+  async getDepartments(): Promise<ApiResponse<PaginatedResponse<Department>>> {
     return apiClient.get("/departments") as unknown as Promise<
-      ApiResponse<Department[]>
+      ApiResponse<PaginatedResponse<Department>>
     >;
   },
 

@@ -99,7 +99,7 @@ const RecruitmentCreatePage = () => {
     useCreateRecruitment();
   const { data: departmentsData, isLoading: isLoadingDepartments } =
     useDepartments();
-  const departments = departmentsData?.value ?? [];
+  const departments = departmentsData?.value?.items ?? [];
 
   const handleChange = (field: keyof FormState, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));

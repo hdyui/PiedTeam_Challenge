@@ -1,5 +1,5 @@
 // src/features/news/pages/NewsListPage.tsx
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { DataTable, type ColumnDef } from "@/shared/components/ui/DataTable";
 import { UrlPagination } from "@/shared/components/ui/UrlPagination";
@@ -32,11 +32,15 @@ const LIMIT = 10;
 export const NewsListPage = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const page = Number(searchParams.get("page")) || 1;
 
-  const [searchInput, setSearchInput] = useState("");
+  // ─── Đọc state ban đầu trực tiếp từ URL (?page=&search=&status=) ────────────
+  const page = Number(searchParams.get("page")) || 1;
+  const urlSearch = searchParams.get("search") ?? "";
+  const urlStatus = (searchParams.get("status") as NewsStatus | "all") || "all";
+
+  const [searchInput, setSearchInput] = useState(urlSearch);
   const debouncedSearch = useDebounce(searchInput.trim(), 350);
-  const [status, setStatus] = useState<NewsStatus | "all">("all");
+  const [status, setStatus] = useState<NewsStatus | "all">(urlStatus);
 
   const { data, isLoading } = useNewsList({
     page,
@@ -53,21 +57,46 @@ export const NewsListPage = () => {
     variables: deletingId,
   } = useDeleteNews();
 
-  const resetToFirstPage = () => {
+  // ─── Đồng bộ mọi thay đổi filter/page vào URL ────────────────────────────────
+  const updateParams = (
+    updates: Record<string, string | undefined>,
+    resetPage = false,
+  ) => {
     const nextParams = new URLSearchParams(searchParams);
-    nextParams.set("page", "1");
+
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value) {
+        nextParams.set(key, value);
+      } else {
+        nextParams.delete(key);
+      }
+    });
+
+    if (resetPage) {
+      nextParams.set("page", "1");
+    }
+
     setSearchParams(nextParams);
   };
 
+  // Khi debouncedSearch thay đổi (do người dùng gõ) → ghi vào URL + reset về trang 1
+  // Bỏ qua lần chạy đầu tiên (mount/reload) để không làm mất "page" đã lưu trong URL
+  const isFirstRender = useRef(true);
   useEffect(() => {
-    if (page !== 1) {
-      resetToFirstPage();
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
     }
+    updateParams({ search: debouncedSearch || undefined }, true);
   }, [debouncedSearch]);
 
   const handleStatusChange = (val: string) => {
-    setStatus(val as NewsStatus | "all");
-    resetToFirstPage();
+    const nextStatus = val as NewsStatus | "all";
+    setStatus(nextStatus);
+    updateParams(
+      { status: nextStatus === "all" ? undefined : nextStatus },
+      true,
+    );
   };
 
   const handleDelete = (id: string) => {

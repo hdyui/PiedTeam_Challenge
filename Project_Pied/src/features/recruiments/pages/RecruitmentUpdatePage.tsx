@@ -4,6 +4,7 @@ import {
   useDeleteRecruitment,
   usePublicRecruitmentDetail,
   useUpdateRecruitment,
+  useDepartments,
 } from "../hooks/useRecruitment";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -123,6 +124,9 @@ const RecruitmentUpdatePage = () => {
     useUpdateRecruitment();
   const { mutate: deleteRecruitment, isPending: isDeleting } =
     useDeleteRecruitment();
+  const { data: departmentsData, isLoading: isLoadingDepartments } =
+    useDepartments();
+  const departments = departmentsData?.value?.items ?? [];
 
   const [form, setForm] = useState<FormState>({
     title: "",
@@ -306,14 +310,30 @@ const RecruitmentUpdatePage = () => {
                     required
                     error={errors.departmentId}
                   >
-                    <Input
-                      placeholder="ID phòng ban"
+                    <Select
                       value={form.departmentId}
-                      onChange={(e) =>
-                        handleChange("departmentId", e.target.value)
-                      }
-                      className={`border-gray-200 focus-visible:ring-indigo-500 ${errors.departmentId ? "border-red-300 focus-visible:ring-red-400" : ""}`}
-                    />
+                      onValueChange={(v) => handleChange("departmentId", v)}
+                      disabled={isLoadingDepartments}
+                    >
+                      <SelectTrigger
+                        className={`border-gray-200 ${errors.departmentId ? "border-red-300" : ""}`}
+                      >
+                        <SelectValue
+                          placeholder={
+                            isLoadingDepartments
+                              ? "Đang tải phòng ban..."
+                              : "Chọn phòng ban"
+                          }
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {departments.map((dept) => (
+                          <SelectItem key={dept.id} value={dept.id}>
+                            {dept.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </FieldWrapper>
 
                   <FieldWrapper label="Cấp bậc" required error={errors.level}>
