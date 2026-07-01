@@ -9,11 +9,8 @@ import EmployeeProfileLayout from "@/features/employees/components/layout/Employ
 
 import { HomePage } from "@/features/auth/pages/HomePage";
 import { LoginPage } from "@/features/auth/pages/LoginPage";
-import { RegisterPage } from "@/features/auth/pages/RegisterPage";
 
 // --- ADMIN & EMPLOYEE (QUẢN LÝ) ---
-
-import { ProfilePage } from "@/features/employees/pages/AccountProfilePage";
 
 // ─── News ────────────────────────────────────────────────────────────────────
 import {
@@ -39,11 +36,9 @@ import { DepartmentListPage } from "@/features/departments/pages/DepartmentListP
 import { DepartmentCreatePage } from "@/features/departments/pages/DepartmentCreatePage";
 import { DepartmentEditPage } from "@/features/departments/pages/DepartmentEditPage";
 import { DepartmentDetailPage } from "@/features/departments/pages/DepartmentDetailPage";
+import ProfilePage from "@/features/account/pages/ProfilePage";
 
 export const router = createBrowserRouter([
-  // ==========================================
-  // 1. AUTH ROUTES (Đứng độc lập, không bọc Layout nào để màn hình login trắng tinh)
-  // ==========================================
   {
     path: "/",
     element: <MainLayout />,
@@ -55,10 +50,7 @@ export const router = createBrowserRouter([
       { path: "recruitments/:id", element: <PublicRecruitmentDetailPage /> },
       {
         element: <RequireUnAuth />,
-        children: [
-          { path: "login", element: <LoginPage /> },
-          { path: "register", element: <RegisterPage /> },
-        ],
+        children: [{ path: "login", element: <LoginPage /> }],
       },
     ],
   },
@@ -83,7 +75,7 @@ export const router = createBrowserRouter([
           { path: "accounts/update/:id", element: <AccountEditPage /> },
           { path: "accounts/:id", element: <AccountDetailPage /> },
 
-          // Departments (Thêm cục này vào)
+          // Departments
           { path: "departments", element: <DepartmentListPage /> },
           { path: "departments/create", element: <DepartmentCreatePage /> },
           { path: "departments/update/:id", element: <DepartmentEditPage /> },

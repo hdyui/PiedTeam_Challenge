@@ -1,52 +1,53 @@
-import { NavLink, Outlet } from "react-router-dom";
-import { User, Settings } from "lucide-react"; // Lấy icon cho đẹp giống Admin
+import { Outlet, Link } from "react-router-dom";
+import { LogOut, UserCircle } from "lucide-react";
 
-const EmployeeProfileLayout = () => {
+import { Button } from "@/shared/components/ui/button";
+import { useLogoutMutation } from "@/features/auth/hooks/useAuth";
+
+/**
+ * Khung bao ngoài cho khu vực Employee:
+ *  - Thanh trên (logo + nút đăng xuất)
+ *  - <Outlet /> = nơi các trang con (ProfilePage...) hiển thị vào
+ *
+ * Nếu sau này có thêm trang cho employee, chỉ cần thêm route con,
+ * không phải đụng vào layout này.
+ */
+const EmployeeLayout = () => {
+  const { mutate: logout, isPending } = useLogoutMutation();
+
   return (
-    <div className="flex gap-8 max-w-5xl mx-auto w-full">
-      {/* ===== SIDEBAR NHỎ BÊN TRÁI ===== */}
-      <aside className="w-64 bg-slate-800 p-4 rounded-xl h-fit flex flex-col gap-2 shadow-md">
-        <div className="mb-4 pb-4 border-b border-slate-600 text-center">
-          <h2 className="text-lg font-bold text-white">Cài đặt tài khoản</h2>
+    <div className="min-h-screen bg-slate-100">
+      {/* Top bar */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
+        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+          <Link
+            to="/employee/profile"
+            className="flex items-center gap-2 font-bold text-primary"
+          >
+            <UserCircle className="w-6 h-6" />
+            <span>Khu vực nhân viên</span>
+          </Link>
+
+          <Button
+            variant="outline"
+            className="flex items-center gap-2"
+            onClick={() => logout()}
+            disabled={isPending}
+          >
+            <LogOut className="w-4 h-4" />
+            <span className="hidden sm:inline">
+              {isPending ? "Đang đăng xuất..." : "Đăng xuất"}
+            </span>
+          </Button>
         </div>
+      </header>
 
-        <NavLink
-          to="/employee/profile"
-          end
-          className={({ isActive }) =>
-            `flex items-center gap-3 px-4 py-2 rounded-md transition-colors ${
-              isActive
-                ? "bg-primary text-white"
-                : "hover:bg-slate-700 text-slate-300"
-            }`
-          }
-        >
-          <User className="w-4 h-4" />
-          Hồ sơ của tôi
-        </NavLink>
-
-        <NavLink
-          to="/employee/profile/update"
-          className={({ isActive }) =>
-            `flex items-center gap-3 px-4 py-2 rounded-md transition-colors ${
-              isActive
-                ? "bg-primary text-white"
-                : "hover:bg-slate-700 text-slate-300"
-            }`
-          }
-        >
-          <Settings className="w-4 h-4" />
-          Cập nhật thông tin
-        </NavLink>
-      </aside>
-
-      {/* ===== VÙNG CHỨA FORM BÊN PHẢI ===== */}
-      <main className="flex-1 bg-slate-800 p-6 rounded-xl shadow-md text-white">
-        {/* Nội dung form xem/sửa sẽ tự động chui vào đây */}
+      {/* Nội dung trang con */}
+      <main className="max-w-5xl mx-auto px-6 py-8">
         <Outlet />
       </main>
     </div>
   );
 };
 
-export default EmployeeProfileLayout;
+export default EmployeeLayout;

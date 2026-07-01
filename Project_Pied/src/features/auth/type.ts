@@ -1,9 +1,8 @@
 import type { UserRole } from "@/shared/types";
 
 export interface AuthResponse {
-  value: {
-    accessToken: string;
-  };
+  accessToken: string;
+  refreshToken: string;
   isSuccess: boolean;
   isFailed: boolean;
   error: unknown | null;
